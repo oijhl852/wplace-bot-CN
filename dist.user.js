@@ -769,11 +769,15 @@ class BotImage extends Base2 {
       this.strategy = this.$strategy.value;
       save(this.bot);
     });
+    let opacityTimeout;
     this.registerEvent(this.$opacity, "input", () => {
       this.opacity = this.$opacity.valueAsNumber;
       this.$opacity.style.setProperty("--val", this.opacity + "%");
-      this.update();
-      save(this.bot);
+      clearTimeout(opacityTimeout);
+      opacityTimeout = setTimeout(() => {
+        this.update();
+        save(this.bot);
+      }, 200);
     });
     this.$opacity.style.setProperty("--val", this.opacity + "%");
     let timeout;
@@ -870,7 +874,8 @@ class BotImage extends Base2 {
     this.element.style.transform = `translate(${x}px, ${y}px)`;
     this.element.style.width = `${this.position.pixelSize * this.pixels.width}px`;
     this.$canvas.style.opacity = `${this.opacity}%`;
-    this.element.classList.toggle("hidden", this.hidden);
+    this.$canvas.style.display = this.hidden ? "none" : "";
+    this.$wrapper.style.display = this.hidden ? "none" : "";
     this.$resetSizeSpan.textContent = this.pixels.width.toString();
     this.$brightness.valueAsNumber = this.pixels.brightness;
     this.$strategy.value = this.strategy;
@@ -1495,6 +1500,25 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   cursor: w-resize;\r
 }\r
 \r
+/* Hide overlay: hide only canvas+wrapper, keep wtopbar */
+.wimage.hide-overlay canvas {
+  display: none;
+}
+.wimage.hide-overlay .wrapper {
+  display: none;
+}
+
+/* Error flash */
+@keyframes wplace-error-flash {
+  0%, 100% { border-color: var(--text); }
+  50% { border-color: var(--error); }
+}
+.wstatus.error {
+  animation: wplace-error-flash 0.5s ease-in-out 3;
+  color: var(--error);
+  font-weight: bold;
+}
+
 /* Utility */\r
 .wp {\r
   padding: 0 8px;\r
@@ -1688,6 +1712,11 @@ class Widget extends Base2 {
       if (!(error instanceof WPlaceBotError)) {
         console.error(error);
         this.status = `❌ ${status}`;
+        this.$status.classList.add("error");
+        setTimeout(() => this.$status.classList.remove("error"), 2000);
+      } else {
+        this.$status.classList.add("error");
+        setTimeout(() => this.$status.classList.remove("error"), 2000);
       }
       throw error;
     } finally {

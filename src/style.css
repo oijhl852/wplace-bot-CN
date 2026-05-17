@@ -350,6 +350,25 @@
   cursor: w-resize;
 }
 
+/* Hide overlay: hide only canvas+wrapper, keep wtopbar */
+.wimage.hide-overlay canvas {
+  display: none;
+}
+.wimage.hide-overlay .wrapper {
+  display: none;
+}
+
+/* Error flash */
+@keyframes wplace-error-flash {
+  0%, 100% { border-color: var(--text); }
+  50% { border-color: var(--error); }
+}
+.wstatus.error {
+  animation: wplace-error-flash 0.5s ease-in-out 3;
+  color: var(--error);
+  font-weight: bold;
+}
+
 /* Utility */
 .wp {
   padding: 0 8px;

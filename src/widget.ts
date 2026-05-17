@@ -203,6 +203,11 @@ export class Widget extends Base {
       if (!(error instanceof WPlaceBotError)) {
         console.error(error)
         this.status = `❌ ${status}`
+        this.$status.classList.add('error')
+        setTimeout(() => this.$status.classList.remove('error'), 2000)
+      } else {
+        this.$status.classList.add('error')
+        setTimeout(() => this.$status.classList.remove('error'), 2000)
       }
       throw error
     } finally {
