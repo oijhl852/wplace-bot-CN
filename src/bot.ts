@@ -112,9 +112,9 @@ export class WPlaceBot {
     )
     document.head.append(style)
 
-    void this.widget.run('Initializing', async () => {
-      // Waiting for all of website to load
-      await this.waitForElement('login', '.avatar.center-absolute.absolute')
+    void this.widget.run('初始化中', async () => {
+      // 等待 all of website to load
+      await this.waitForElement('登录', '.avatar.center-absolute.absolute')
       await this.waitForElement(
         'pixel count',
         '.btn.btn-primary.btn-lg.relative.z-30 canvas',
@@ -168,9 +168,9 @@ export class WPlaceBot {
       if (!event.shiftKey) event.stopPropagation()
     }
     return this.widget.run(
-      'Drawing',
+      '绘制中',
       async () => {
-        await this.widget.run('Initializing draw', () =>
+        await this.widget.run('初始化绘制', () =>
           Promise.all([this.updateColors(), this.readMap()]),
         )
         // Stop mouse messing with drawing by capturing event
@@ -323,7 +323,7 @@ export class WPlaceBot {
           imagesToDownload.add(`${tileX}/${tileY}`)
     }
     let done = 0
-    return this.widget.run(`Reading map [0/${imagesToDownload.size}]`, () =>
+    return this.widget.run(`读取地图 [0/${imagesToDownload.size}]`, () =>
       Promise.all(
         [...imagesToDownload].map(async (x) => {
           this.mapsCache.set(
@@ -333,7 +333,7 @@ export class WPlaceBot {
               exactColor: true,
             }),
           )
-          this.widget.status = `⌛ Reading map [${++done}/${imagesToDownload.size}]`
+          this.widget.status = `⌛ 读取地图 [${++done}/${imagesToDownload.size}]`
         }),
       ),
     )
@@ -342,7 +342,7 @@ export class WPlaceBot {
   /** Wait until window is unfocused */
   public waitForUnfocus() {
     return this.widget.run(
-      'UNFOCUS WINDOW',
+      '取消聚焦窗口',
       () =>
         new Promise<void>((resolve) => {
           if (!document.hasFocus()) resolve()
@@ -522,7 +522,7 @@ export class WPlaceBot {
     name: string,
     selector: string,
   ): Promise<T> {
-    return this.widget.run(`Waiting for ${name}`, () => {
+    return this.widget.run(`等待 ${name}`, () => {
       return new Promise<T>((resolve) => {
         // If element already exists, resolve immediately
         const existing = document.querySelector<T>(selector)

@@ -44,6 +44,7 @@ export class BotImage extends Base {
       data.drawColorsInOrder,
       data.colors,
       data.lock,
+      data.hidden,
     )
   }
 
@@ -66,6 +67,7 @@ export class BotImage extends Base {
   protected readonly $canvas!: HTMLCanvasElement
   protected readonly $colors!: HTMLDivElement
   protected readonly $delete!: HTMLButtonElement
+  protected readonly $hide!: HTMLButtonElement
   protected readonly $drawColorsInOrder!: HTMLInputElement
   protected readonly $drawTransparent!: HTMLInputElement
   protected readonly $export!: HTMLDivElement
@@ -98,6 +100,8 @@ export class BotImage extends Base {
     public colors: { realColor: number; disabled?: boolean }[] = [],
     /** Stop accidental image edit */
     public lock = false,
+    /** Hide image overlay */
+    public hidden = false,
   ) {
     super()
     this.element.innerHTML = html as unknown as string
@@ -108,6 +112,7 @@ export class BotImage extends Base {
       $brightness: '.brightness',
       $colors: '.colors',
       $delete: '.delete',
+      $hide: '.hide',
       $drawColorsInOrder: '.draw-colors-in-order',
       $drawTransparent: '.draw-transparent',
       $export: '.export',
@@ -176,6 +181,13 @@ export class BotImage extends Base {
       save(this.bot)
     })
 
+    // Hide
+    this.registerEvent(this.$hide, 'click', () => {
+      this.hidden = !this.hidden
+      this.update()
+      save(this.bot)
+    })
+
     // Lock
     this.registerEvent(this.$lock, 'click', () => {
       this.lock = !this.lock
@@ -213,6 +225,7 @@ export class BotImage extends Base {
       drawColorsInOrder: this.drawColorsInOrder,
       colors: this.colors,
       lock: this.lock,
+      hidden: this.hidden,
     }
   }
 
@@ -255,7 +268,7 @@ export class BotImage extends Base {
     this.element.style.transform = `translate(${x}px, ${y}px)`
     this.element.style.width = `${this.position.pixelSize * this.pixels.width}px`
     this.$canvas.style.opacity = `${this.opacity}%`
-    this.element.classList.remove('hidden')
+    this.element.classList.toggle('hidden', this.hidden)
 
     this.$resetSizeSpan.textContent = this.pixels.width.toString()
     this.$brightness.valueAsNumber = this.pixels.brightness
@@ -266,10 +279,11 @@ export class BotImage extends Base {
     const maxTasks = this.pixels.pixels.length * this.pixels.pixels[0]!.length
     const doneTasks = maxTasks - this.tasks.length
     const percent = ((doneTasks / maxTasks) * 100) | 0
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% ETA: ${(this.tasks.length / 120) | 0}h`
+    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${(this.tasks.length / 120) | 0}小时`
     this.$progressLine.style.transform = `scaleX(${percent}%)`
     this.$wrapper.classList[this.lock ? 'add' : 'remove']('no-pointer-events')
     this.$lock.textContent = this.lock ? '🔒' : '🔓'
+    this.$hide.textContent = this.hidden ? '👁‍🗨' : '👁'
   }
 
   /** Removes image. Don't forget to remove from array inside widget. */

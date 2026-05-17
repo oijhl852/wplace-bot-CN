@@ -11,13 +11,13 @@ export class WPlaceBotError extends Error {
 export class NotInitializedError extends WPlaceBotError {
   public name = 'NotInitializedError'
   public constructor(bot: WPlaceBot) {
-    super('❌ Not initialized', bot)
+    super('❌ 未初始化', bot)
   }
 }
 
 export class NoImageError extends WPlaceBotError {
   public name = 'NoImageError'
   public constructor(bot: WPlaceBot) {
-    super('❌ No image is selected', bot)
+    super('❌ 未选择图片', bot)
   }
 }

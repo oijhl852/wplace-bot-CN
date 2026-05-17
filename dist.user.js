@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         wplace-bot
+// @name         wplace-机器人
 // @namespace    https://github.com/SoundOfTheSky
 // @version      4.5.2
-// @description  Bot to automate painting on website https://wplace.live
+// @description  在 https://wplace.live 网站上自动绘制的机器人
 // @author       SoundOfTheSky
 // @license      MPL-2.0
 // @homepageURL  https://github.com/SoundOfTheSky/wplace-bot
@@ -374,44 +374,45 @@ function colorToCSS(colorId) {
 }
 
 // src/image.html
-var image_default = `<div class="wtopbar">
-  <button class="export">📤</button>
-  <button class="lock">🔓</button>
-  <button class="delete">❌</button>
-</div>
-<div class="wrapper">
-  <div class="wform">
-    <div class="wprogress">
-      <div></div>
-      <span></span>
-    </div>
-    <div class="colors"></div>
-    <label>Opacity:&nbsp;<input class="opacity" type="range" min="0" max="100"/></label>
-    <label>Brightness:&nbsp;<input class="brightness" type="number" step="0.1"/></label>
-    <label>
-      Strategy:&nbsp;<select class="strategy">
-        <option value="RANDOM" selected>Random</option>
-        <option value="DOWN">Down</option>
-        <option value="UP">Up</option>
-        <option value="LEFT">Left</option>
-        <option value="RIGHT">Right</option>
-        <option value="SPIRAL_FROM_CENTER">Spiral out</option>
-        <option value="SPIRAL_TO_CENTER">Spiral in</option>
-      </select>
-    </label>
-    <button class="reset-size">Reset size [<span></span>px]</button>
-    <label>
-      <input type="checkbox" class="draw-transparent" />&nbsp;Erase transparent pixels
-    </label>
-    <label>
-      <input type="checkbox" class="draw-colors-in-order" />&nbsp;Draw colors in order
-    </label>
-  </div>
-  <div class="resize n"></div>
-  <div class="resize e"></div>
-  <div class="resize s"></div>
-  <div class="resize w"></div>
-</div>
+var image_default = `<div class="wtopbar">\r
+  <button class="hide">👁</button>\r
+  <button class="export">📤</button>\r
+  <button class="lock">🔓</button>\r
+  <button class="delete">❌</button>\r
+</div>\r
+<div class="wrapper">\r
+  <div class="wform">\r
+    <div class="wprogress">\r
+      <div></div>\r
+      <span></span>\r
+    </div>\r
+    <div class="colors"></div>\r
+    <label>不透明度:&nbsp;<input class="opacity" type="range" min="0" max="100"/></label>\r
+    <label>亮度:&nbsp;<input class="brightness" type="number" step="0.1"/></label>\r
+    <label>\r
+      策略:&nbsp;<select class="strategy">\r
+        <option value="RANDOM" selected>随机</option>\r
+        <option value="DOWN">向下</option>\r
+        <option value="UP">向上</option>\r
+        <option value="LEFT">向左</option>\r
+        <option value="RIGHT">向右</option>\r
+        <option value="SPIRAL_FROM_CENTER">向外螺旋</option>\r
+        <option value="SPIRAL_TO_CENTER">向内螺旋</option>\r
+      </select>\r
+    </label>\r
+    <button class="reset-size">重置大小 [<span></span>像素]</button>\r
+    <label>\r
+      <input type="checkbox" class="draw-transparent" />&nbsp;擦除透明像素\r
+    </label>\r
+    <label>\r
+      <input type="checkbox" class="draw-colors-in-order" />&nbsp;按顺序绘制颜色\r
+    </label>\r
+  </div>\r
+  <div class="resize n"></div>\r
+  <div class="resize e"></div>\r
+  <div class="resize s"></div>\r
+  <div class="resize w"></div>\r
+</div>\r
 `;
 
 // src/pixels.ts
@@ -703,8 +704,9 @@ class BotImage extends Base2 {
   drawColorsInOrder;
   colors;
   lock;
+  hidden;
   static async fromJSON(bot, data) {
-    return new BotImage(bot, WorldPosition.fromJSON(bot, data.position), await Pixels.fromJSON(bot, data.pixels), data.strategy, data.opacity, data.drawTransparentPixels, data.drawColorsInOrder, data.colors, data.lock);
+    return new BotImage(bot, WorldPosition.fromJSON(bot, data.position), await Pixels.fromJSON(bot, data.pixels), data.strategy, data.opacity, data.drawTransparentPixels, data.drawColorsInOrder, data.colors, data.lock, data.hidden);
   }
   element = document.createElement("div");
   tasks = [];
@@ -713,6 +715,7 @@ class BotImage extends Base2 {
   $canvas;
   $colors;
   $delete;
+  $hide;
   $drawColorsInOrder;
   $drawTransparent;
   $export;
@@ -726,7 +729,7 @@ class BotImage extends Base2 {
   $strategy;
   $topbar;
   $wrapper;
-  constructor(bot, position, pixels, strategy = "SPIRAL_FROM_CENTER" /* SPIRAL_FROM_CENTER */, opacity = 50, drawTransparentPixels = false, drawColorsInOrder = false, colors = [], lock = false) {
+  constructor(bot, position, pixels, strategy = "SPIRAL_FROM_CENTER" /* SPIRAL_FROM_CENTER */, opacity = 50, drawTransparentPixels = false, drawColorsInOrder = false, colors = [], lock = false, hidden = false) {
     super();
     this.bot = bot;
     this.position = position;
@@ -737,6 +740,7 @@ class BotImage extends Base2 {
     this.drawColorsInOrder = drawColorsInOrder;
     this.colors = colors;
     this.lock = lock;
+    this.hidden = hidden;
     this.element.innerHTML = image_default;
     this.element.classList.add("wimage");
     document.body.append(this.element);
@@ -744,6 +748,7 @@ class BotImage extends Base2 {
       $brightness: ".brightness",
       $colors: ".colors",
       $delete: ".delete",
+      $hide: ".hide",
       $drawColorsInOrder: ".draw-colors-in-order",
       $drawTransparent: ".draw-transparent",
       $export: ".export",
@@ -797,6 +802,11 @@ class BotImage extends Base2 {
       this.drawColorsInOrder = this.$drawColorsInOrder.checked;
       save(this.bot);
     });
+    this.registerEvent(this.$hide, "click", () => {
+      this.hidden = !this.hidden;
+      this.update();
+      save(this.bot);
+    });
     this.registerEvent(this.$lock, "click", () => {
       this.lock = !this.lock;
       this.update();
@@ -822,7 +832,8 @@ class BotImage extends Base2 {
       drawTransparentPixels: this.drawTransparentPixels,
       drawColorsInOrder: this.drawColorsInOrder,
       colors: this.colors,
-      lock: this.lock
+      lock: this.lock,
+      hidden: this.hidden
     };
   }
   updateTasks() {
@@ -859,7 +870,7 @@ class BotImage extends Base2 {
     this.element.style.transform = `translate(${x}px, ${y}px)`;
     this.element.style.width = `${this.position.pixelSize * this.pixels.width}px`;
     this.$canvas.style.opacity = `${this.opacity}%`;
-    this.element.classList.remove("hidden");
+    this.element.classList.toggle("hidden", this.hidden);
     this.$resetSizeSpan.textContent = this.pixels.width.toString();
     this.$brightness.valueAsNumber = this.pixels.brightness;
     this.$strategy.value = this.strategy;
@@ -869,10 +880,11 @@ class BotImage extends Base2 {
     const maxTasks = this.pixels.pixels.length * this.pixels.pixels[0].length;
     const doneTasks = maxTasks - this.tasks.length;
     const percent = doneTasks / maxTasks * 100 | 0;
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% ETA: ${this.tasks.length / 120 | 0}h`;
+    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${this.tasks.length / 120 | 0}小时`;
     this.$progressLine.style.transform = `scaleX(${percent}%)`;
     this.$wrapper.classList[this.lock ? "add" : "remove"]("no-pointer-events");
     this.$lock.textContent = this.lock ? "\uD83D\uDD12" : "\uD83D\uDD13";
+    this.$hide.textContent = this.hidden ? "\uD83D\uDC41‍\uD83D\uDDE8" : "\uD83D\uDC41";
   }
   destroy() {
     super.destroy();
@@ -1131,371 +1143,371 @@ class BotImage extends Base2 {
 }
 
 // src/style.css
-var style_default = `/* stylelint-disable declaration-no-important */
-/* stylelint-disable plugin/no-low-performance-animation-properties */
-/* stylelint-disable no-descending-specificity */
-@import 'https://fonts.googleapis.com/css2?family=Tiny5&display=swap';
-
-:root {
-  --hover: #dfdfdf;
-  --text-invert: #fff;
-  --error: #f00;
-  --resize: 8px;
-  --asdadsasdasdasdasdasdasdasd: 1px;
-  --text: #422e2c;
-  --background: #fbe3cb;
-  --background-hover: #f0d1b3;
-  --background-disabled: #a37648;
-  --main: #66bbb4;
-  --main-hover: #48a19a;
-}
-
-.text-yellow-400.cursor-pointer.z-10.maplibregl-marker.maplibregl-marker-anchor-center:nth-child(
-    -n + FAKE_FAVORITE_LOCATIONS
-  ) {
-  display: none;
-}
-
-/** Widget */
-.wwidget {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  width: 256px;
-  height: 100dvh;
-  border-right: var(--text) 2px solid;
-  background-color: var(--background);
-  color: var(--text);
-  font-family: 'Tiny5', sans-serif;
-  transition: transform 0.5s;
-  transform: translateX(-100%);
-}
-
-.wwidget .title {
-  border-bottom: var(--text) 2px solid;
-  background-color: var(--main);
-  font-size: 32px;
-  text-align: center;
-}
-
-.wwidget.wopen .wopen-button div {
-  transform: rotate(180deg);
-}
-
-.wwidget.wopen {
-  box-shadow: 8px 0 16px -8px var(--main);
-  transform: translateX(0);
-}
-
-.wwidget .wopen-button div {
-  transition: transform 0.5s;
-}
-
-.wwidget .wopen-button {
-  position: absolute;
-  top: calc(50% - 24px);
-  right: -24px;
-  width: 24px;
-  height: 48px;
-  border: var(--text) 2px solid;
-  border-left: none;
-  background-color: var(--background);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.wwidget .images {
-  display: block;
-  overflow-y: auto;
-  height: auto;
-  max-height: 240px;
-}
-
-.wwidget .images .image {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 64px;
-}
-
-.wwidget .images .image img {
-  max-width: 100%;
-  max-height: 100%;
-  margin: 0 auto;
-  cursor: pointer;
-}
-
-.wwidget .images .image button {
-  width: 32px;
-  height: 64px;
-  font-weight: bolder;
-  font-size: 24px;
-}
-
-/** Image */
-.wimage {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9;
-}
-
-.wimage canvas {
-  width: 100%;
-  box-shadow: inset var(--text) 0 0 0 2px;
-  cursor: all-scroll;
-  image-rendering: pixelated;
-}
-
-.wimage .wform {
-  position: absolute;
-  display: none;
-  width: 100%;
-  min-width: 256px;
-  border: var(--text) 2px solid;
-  background-color: var(--background);
-  color: var(--text);
-}
-
-.wimage:hover .wrapper .wform {
-  display: block;
-}
-
-/* Settings */
-.wform {
-  font-family: 'Tiny5', sans-serif;
-}
-
-.wform > * {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  width: calc(100% - 8px);
-  margin: 4px;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wform button,
-.wform input,
-.wform select,
-.wform textarea,
-.wform label:has(input[type='checkbox']) {
-  padding: 0 8px;
-  border: var(--text) 2px solid;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.wform input[type='range'] {
-  width: 100%;
-  height: 32px;
-  background: linear-gradient(
-    to right,
-    var(--main) var(--val),
-    var(--background-disabled) var(--val)
-  );
-  cursor: ew-resize;
-  appearance: none;
-}
-
-.wform input[type='range']::-moz-range-thumb {
-  width: 0;
-  height: 0;
-  opacity: 0;
-}
-
-.wform button:hover,
-.wform input:hover {
-  background-color: var(--background-hover);
-}
-
-.wform button:disabled,
-.wform input:disabled {
-  background-color: var(--background-disabled);
-  cursor: no-drop;
-}
-
-.wform label input:not([type='checkbox']) {
-  width: inherit;
-}
-
-.wform .wprogress {
-  position: relative;
-  width: 100%;
-  margin: 0;
-}
-
-.wform .wprogress div {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: var(--main);
-  transform-origin: left;
-}
-
-.wform .wprogress span {
-  z-index: 0;
-}
-
-.wform .colors {
-  position: relative;
-  width: 100%;
-  height: 32px;
-  margin: 0;
-  background: repeating-linear-gradient(
-    25deg,
-    var(--background),
-    var(--background),
-    var(--hover) 8px,
-    var(--hover) 12px
-  );
-  cursor: ew-resize;
-}
-
-.wform .colors > button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  cursor: grab;
-  transition:
-    0.2s left,
-    0.2s width,
-    0.2s filter;
-}
-
-.wform .colors > button:hover {
-  filter: brightness(0.6);
-}
-
-.wform .colors > button.color-disabled::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  box-shadow: inset 0 0 0 2px var(--error);
-  pointer-events: none;
-}
-
-.wform .colors > button.substitution button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0 4px;
-  color: var(--background);
-  transition: 0.2s filter;
-}
-
-.wform .colors > button.substitution button:hover {
-  filter: brightness(0.6);
-}
-
-.wform .colors > button.substitution button:first-child {
-  background: var(--wreal-color);
-  text-align: left;
-  clip-path: polygon(0 0, 80% 0, 20% 100%, 0 100%);
-}
-
-.wform .colors > button.substitution button:last-child {
-  background: var(--wsubstitution-color);
-  text-align: right;
-  clip-path: polygon(100% 100%, 100% 0, 80% 0, 20% 100%);
-}
-
-.wform .colors > button.substitution:hover {
-  filter: none;
-}
-
-.wform .colors:hover > button {
-  left: var(--wleft) !important;
-  width: var(--wwidth) !important;
-}
-
-/* Move */
-.wtopbar {
-  position: absolute;
-  top: -24px;
-  left: 0;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  width: 100%;
-  min-width: min-content;
-  min-width: 256px;
-  border: var(--text) 2px solid;
-  background-color: var(--main);
-  color: var(--text-invert);
-  cursor: all-scroll;
-}
-
-.wtopbar button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-}
-
-.wtopbar button:hover {
-  background-color: var(--main-hover);
-}
-
-/* Resize */
-.resize {
-  position: absolute;
-  width: calc(100% - var(--resize) - var(--resize));
-  height: calc(100% - var(--resize) - var(--resize));
-}
-
-.resize.n {
-  top: 0;
-  left: var(--resize);
-  height: var(--resize);
-  cursor: n-resize;
-}
-
-.resize.e {
-  top: var(--resize);
-  right: 0;
-  width: var(--resize);
-  cursor: e-resize;
-}
-
-.resize.s {
-  bottom: 0;
-  left: var(--resize);
-  height: var(--resize);
-  cursor: s-resize;
-}
-
-.resize.w {
-  top: var(--resize);
-  left: 0;
-  width: var(--resize);
-  cursor: w-resize;
-}
-
-/* Utility */
-.wp {
-  padding: 0 8px;
-}
-
-.hidden {
-  display: none;
-}
-
-.no-pointer-events {
-  height: 1px;
-  pointer-events: none;
-}
+var style_default = `/* stylelint-disable declaration-no-important */\r
+/* stylelint-disable plugin/no-low-performance-animation-properties */\r
+/* stylelint-disable no-descending-specificity */\r
+@import 'https://fonts.googleapis.com/css2?family=Tiny5&display=swap';\r
+\r
+:root {\r
+  --hover: #dfdfdf;\r
+  --text-invert: #fff;\r
+  --error: #f00;\r
+  --resize: 8px;\r
+  --asdadsasdasdasdasdasdasdasd: 1px;\r
+  --text: #422e2c;\r
+  --background: #fbe3cb;\r
+  --background-hover: #f0d1b3;\r
+  --background-disabled: #a37648;\r
+  --main: #66bbb4;\r
+  --main-hover: #48a19a;\r
+}\r
+\r
+.text-yellow-400.cursor-pointer.z-10.maplibregl-marker.maplibregl-marker-anchor-center:nth-child(\r
+    -n + FAKE_FAVORITE_LOCATIONS\r
+  ) {\r
+  display: none;\r
+}\r
+\r
+/** Widget */\r
+.wwidget {\r
+  position: fixed;\r
+  top: 0;\r
+  left: 0;\r
+  z-index: 1000;\r
+  width: 256px;\r
+  height: 100dvh;\r
+  border-right: var(--text) 2px solid;\r
+  background-color: var(--background);\r
+  color: var(--text);\r
+  font-family: 'Tiny5', sans-serif;\r
+  transition: transform 0.5s;\r
+  transform: translateX(-100%);\r
+}\r
+\r
+.wwidget .title {\r
+  border-bottom: var(--text) 2px solid;\r
+  background-color: var(--main);\r
+  font-size: 32px;\r
+  text-align: center;\r
+}\r
+\r
+.wwidget.wopen .wopen-button div {\r
+  transform: rotate(180deg);\r
+}\r
+\r
+.wwidget.wopen {\r
+  box-shadow: 8px 0 16px -8px var(--main);\r
+  transform: translateX(0);\r
+}\r
+\r
+.wwidget .wopen-button div {\r
+  transition: transform 0.5s;\r
+}\r
+\r
+.wwidget .wopen-button {\r
+  position: absolute;\r
+  top: calc(50% - 24px);\r
+  right: -24px;\r
+  width: 24px;\r
+  height: 48px;\r
+  border: var(--text) 2px solid;\r
+  border-left: none;\r
+  background-color: var(--background);\r
+  color: var(--text);\r
+  cursor: pointer;\r
+}\r
+\r
+.wwidget .images {\r
+  display: block;\r
+  overflow-y: auto;\r
+  height: auto;\r
+  max-height: 240px;\r
+}\r
+\r
+.wwidget .images .image {\r
+  display: flex;\r
+  align-items: center;\r
+  width: 100%;\r
+  height: 64px;\r
+}\r
+\r
+.wwidget .images .image img {\r
+  max-width: 100%;\r
+  max-height: 100%;\r
+  margin: 0 auto;\r
+  cursor: pointer;\r
+}\r
+\r
+.wwidget .images .image button {\r
+  width: 32px;\r
+  height: 64px;\r
+  font-weight: bolder;\r
+  font-size: 24px;\r
+}\r
+\r
+/** Image */\r
+.wimage {\r
+  position: fixed;\r
+  top: 0;\r
+  left: 0;\r
+  z-index: 9;\r
+}\r
+\r
+.wimage canvas {\r
+  width: 100%;\r
+  box-shadow: inset var(--text) 0 0 0 2px;\r
+  cursor: all-scroll;\r
+  image-rendering: pixelated;\r
+}\r
+\r
+.wimage .wform {\r
+  position: absolute;\r
+  display: none;\r
+  width: 100%;\r
+  min-width: 256px;\r
+  border: var(--text) 2px solid;\r
+  background-color: var(--background);\r
+  color: var(--text);\r
+}\r
+\r
+.wimage:hover .wrapper .wform {\r
+  display: block;\r
+}\r
+\r
+/* Settings */\r
+.wform {\r
+  font-family: 'Tiny5', sans-serif;\r
+}\r
+\r
+.wform > * {\r
+  display: flex;\r
+  justify-content: center;\r
+  align-items: center;\r
+  overflow: hidden;\r
+  width: calc(100% - 8px);\r
+  margin: 4px;\r
+  text-align: center;\r
+  text-overflow: ellipsis;\r
+  white-space: nowrap;\r
+}\r
+\r
+.wform button,\r
+.wform input,\r
+.wform select,\r
+.wform textarea,\r
+.wform label:has(input[type='checkbox']) {\r
+  padding: 0 8px;\r
+  border: var(--text) 2px solid;\r
+  cursor: pointer;\r
+  transition: background-color 0.2s;\r
+}\r
+\r
+.wform input[type='range'] {\r
+  width: 100%;\r
+  height: 32px;\r
+  background: linear-gradient(\r
+    to right,\r
+    var(--main) var(--val),\r
+    var(--background-disabled) var(--val)\r
+  );\r
+  cursor: ew-resize;\r
+  appearance: none;\r
+}\r
+\r
+.wform input[type='range']::-moz-range-thumb {\r
+  width: 0;\r
+  height: 0;\r
+  opacity: 0;\r
+}\r
+\r
+.wform button:hover,\r
+.wform input:hover {\r
+  background-color: var(--background-hover);\r
+}\r
+\r
+.wform button:disabled,\r
+.wform input:disabled {\r
+  background-color: var(--background-disabled);\r
+  cursor: no-drop;\r
+}\r
+\r
+.wform label input:not([type='checkbox']) {\r
+  width: inherit;\r
+}\r
+\r
+.wform .wprogress {\r
+  position: relative;\r
+  width: 100%;\r
+  margin: 0;\r
+}\r
+\r
+.wform .wprogress div {\r
+  position: absolute;\r
+  width: 100%;\r
+  height: 100%;\r
+  background-color: var(--main);\r
+  transform-origin: left;\r
+}\r
+\r
+.wform .wprogress span {\r
+  z-index: 0;\r
+}\r
+\r
+.wform .colors {\r
+  position: relative;\r
+  width: 100%;\r
+  height: 32px;\r
+  margin: 0;\r
+  background: repeating-linear-gradient(\r
+    25deg,\r
+    var(--background),\r
+    var(--background),\r
+    var(--hover) 8px,\r
+    var(--hover) 12px\r
+  );\r
+  cursor: ew-resize;\r
+}\r
+\r
+.wform .colors > button {\r
+  position: absolute;\r
+  top: 0;\r
+  left: 0;\r
+  width: 100%;\r
+  height: 100%;\r
+  border: none;\r
+  cursor: grab;\r
+  transition:\r
+    0.2s left,\r
+    0.2s width,\r
+    0.2s filter;\r
+}\r
+\r
+.wform .colors > button:hover {\r
+  filter: brightness(0.6);\r
+}\r
+\r
+.wform .colors > button.color-disabled::before {\r
+  content: '';\r
+  position: absolute;\r
+  inset: 0;\r
+  z-index: 2;\r
+  box-shadow: inset 0 0 0 2px var(--error);\r
+  pointer-events: none;\r
+}\r
+\r
+.wform .colors > button.substitution button {\r
+  position: absolute;\r
+  top: 0;\r
+  left: 0;\r
+  width: 100%;\r
+  height: 100%;\r
+  padding: 0 4px;\r
+  color: var(--background);\r
+  transition: 0.2s filter;\r
+}\r
+\r
+.wform .colors > button.substitution button:hover {\r
+  filter: brightness(0.6);\r
+}\r
+\r
+.wform .colors > button.substitution button:first-child {\r
+  background: var(--wreal-color);\r
+  text-align: left;\r
+  clip-path: polygon(0 0, 80% 0, 20% 100%, 0 100%);\r
+}\r
+\r
+.wform .colors > button.substitution button:last-child {\r
+  background: var(--wsubstitution-color);\r
+  text-align: right;\r
+  clip-path: polygon(100% 100%, 100% 0, 80% 0, 20% 100%);\r
+}\r
+\r
+.wform .colors > button.substitution:hover {\r
+  filter: none;\r
+}\r
+\r
+.wform .colors:hover > button {\r
+  left: var(--wleft) !important;\r
+  width: var(--wwidth) !important;\r
+}\r
+\r
+/* Move */\r
+.wtopbar {\r
+  position: absolute;\r
+  top: -24px;\r
+  left: 0;\r
+  display: flex;\r
+  justify-content: end;\r
+  align-items: center;\r
+  width: 100%;\r
+  min-width: min-content;\r
+  min-width: 256px;\r
+  border: var(--text) 2px solid;\r
+  background-color: var(--main);\r
+  color: var(--text-invert);\r
+  cursor: all-scroll;\r
+}\r
+\r
+.wtopbar button {\r
+  display: flex;\r
+  justify-content: center;\r
+  align-items: center;\r
+  width: 24px;\r
+  height: 24px;\r
+}\r
+\r
+.wtopbar button:hover {\r
+  background-color: var(--main-hover);\r
+}\r
+\r
+/* Resize */\r
+.resize {\r
+  position: absolute;\r
+  width: calc(100% - var(--resize) - var(--resize));\r
+  height: calc(100% - var(--resize) - var(--resize));\r
+}\r
+\r
+.resize.n {\r
+  top: 0;\r
+  left: var(--resize);\r
+  height: var(--resize);\r
+  cursor: n-resize;\r
+}\r
+\r
+.resize.e {\r
+  top: var(--resize);\r
+  right: 0;\r
+  width: var(--resize);\r
+  cursor: e-resize;\r
+}\r
+\r
+.resize.s {\r
+  bottom: 0;\r
+  left: var(--resize);\r
+  height: var(--resize);\r
+  cursor: s-resize;\r
+}\r
+\r
+.resize.w {\r
+  top: var(--resize);\r
+  left: 0;\r
+  width: var(--resize);\r
+  cursor: w-resize;\r
+}\r
+\r
+/* Utility */\r
+.wp {\r
+  padding: 0 8px;\r
+}\r
+\r
+.hidden {\r
+  display: none;\r
+}\r
+\r
+.no-pointer-events {\r
+  height: 1px;\r
+  pointer-events: none;\r
+}\r
 `;
 
 // src/errors.ts
@@ -1509,26 +1521,26 @@ class WPlaceBotError extends Error {
 class NoImageError extends WPlaceBotError {
   name = "NoImageError";
   constructor(bot) {
-    super("❌ No image is selected", bot);
+    super("❌ 未选择图片", bot);
   }
 }
 
 // src/widget.html
-var widget_default = `<button class="wopen-button"><div>></div></button>
-<div class="title">WPlace-bot</div>
-<div class="wform">
-  <div class="wprogress"><div></div><span></span></div>
-  <div class="wp wstatus"></div>
-  <button class="draw" disabled>Draw</button>
-  <label>Strategy:&nbsp;<select class="strategy">
-    <option value="SEQUENTIAL" selected>Sequential</option>
-    <option value="ALL">All</option>
-    <option value="PERCENTAGE">Percentage</option>
-  </select></label>
-  <div class="images"></div>
-  <!-- <button class="pumpkin-hunt" disabled>Pumpkin Hunt!</button> -->
-  <button class="add-image" disabled>Add image</button>
-</div>
+var widget_default = `<button class="wopen-button"><div>></div></button>\r
+<div class="title">WPlace-机器人</div>\r
+<div class="wform">\r
+  <div class="wprogress"><div></div><span></span></div>\r
+  <div class="wp wstatus"></div>\r
+  <button class="draw" disabled>绘制</button>\r
+  <label>策略:&nbsp;<select class="strategy">\r
+    <option value="SEQUENTIAL" selected>顺序</option>\r
+    <option value="ALL">全部</option>\r
+    <option value="PERCENTAGE">百分比</option>\r
+  </select></label>\r
+  <div class="images"></div>\r
+  <!-- <button class="pumpkin-hunt" disabled>南瓜狩猎！</button> -->\r
+  <button class="add-image" disabled>添加图片</button>\r
+</div>\r
 `;
 
 // src/widget.ts
@@ -1591,7 +1603,7 @@ class Widget extends Base2 {
   }
   addImage() {
     this.setDisabled("add-image", true);
-    return this.run("Adding image", async () => {
+    return this.run("添加图片中", async () => {
       await this.bot.updateColors();
       const input = document.createElement("input");
       input.type = "file";
@@ -1636,7 +1648,7 @@ class Widget extends Base2 {
     }
     const doneTasks = maxTasks - totalTasks;
     const percent = doneTasks / maxTasks * 100 | 0;
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% ETA: ${totalTasks / 120 | 0}h`;
+    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${totalTasks / 120 | 0}小时`;
     this.$progressLine.style.transform = `scaleX(${percent}%)`;
     this.$images.innerHTML = "";
     for (let index = 0;index < this.bot.images.length; index++) {
@@ -1645,8 +1657,8 @@ class Widget extends Base2 {
       this.$images.append($image);
       $image.className = "image";
       $image.innerHTML = `<img src="${image.pixels.image.src}">
-  <button class="up" title="Move up" ${index === 0 ? "disabled" : ""}>▴</button>
-  <button class="down" title="Move down" ${index === this.bot.images.length - 1 ? "disabled" : ""}>▾</button>`;
+  <button class="up" title="上移" ${index === 0 ? "disabled" : ""}>▴</button>
+  <button class="down" title="下移" ${index === this.bot.images.length - 1 ? "disabled" : ""}>▾</button>`;
       $image.querySelector("img").addEventListener("click", () => {
         image.position.scrollScreenTo();
       });
@@ -1720,8 +1732,8 @@ class WPlaceBot {
     const style = document.createElement("style");
     style.textContent = style_default.replace("FAKE_FAVORITE_LOCATIONS", FAVORITE_LOCATIONS.length.toString());
     document.head.append(style);
-    this.widget.run("Initializing", async () => {
-      await this.waitForElement("login", ".avatar.center-absolute.absolute");
+    this.widget.run("初始化中", async () => {
+      await this.waitForElement("登录", ".avatar.center-absolute.absolute");
       await this.waitForElement("pixel count", ".btn.btn-primary.btn-lg.relative.z-30 canvas");
       const $canvasContainer = await this.waitForElement("canvas", ".maplibregl-canvas-container");
       new MutationObserver((mutations) => {
@@ -1760,8 +1772,8 @@ class WPlaceBot {
       if (!event.shiftKey)
         event.stopPropagation();
     };
-    return this.widget.run("Drawing", async () => {
-      await this.widget.run("Initializing draw", () => Promise.all([this.updateColors(), this.readMap()]));
+    return this.widget.run("绘制中", async () => {
+      await this.widget.run("初始化绘制", () => Promise.all([this.updateColors(), this.readMap()]));
       globalThis.addEventListener("mousemove", prevent, true);
       $canvas.addEventListener("wheel", prevent, true);
       this.updateTasks();
@@ -1871,16 +1883,16 @@ class WPlaceBot {
           imagesToDownload.add(`${tileX}/${tileY}`);
     }
     let done = 0;
-    return this.widget.run(`Reading map [0/${imagesToDownload.size}]`, () => Promise.all([...imagesToDownload].map(async (x) => {
+    return this.widget.run(`读取地图 [0/${imagesToDownload.size}]`, () => Promise.all([...imagesToDownload].map(async (x) => {
       this.mapsCache.set(x, await Pixels.fromJSON(this, {
         url: `https://backend.wplace.live/files/s0/tiles/${x}.png`,
         exactColor: true
       }));
-      this.widget.status = `⌛ Reading map [${++done}/${imagesToDownload.size}]`;
+      this.widget.status = `⌛ 读取地图 [${++done}/${imagesToDownload.size}]`;
     })));
   }
   waitForUnfocus() {
-    return this.widget.run("UNFOCUS WINDOW", () => new Promise((resolve) => {
+    return this.widget.run("取消聚焦窗口", () => new Promise((resolve) => {
       if (!document.hasFocus())
         resolve();
       window.addEventListener("blur", () => {
@@ -1998,7 +2010,7 @@ class WPlaceBot {
     }
   }
   waitForElement(name, selector) {
-    return this.widget.run(`Waiting for ${name}`, () => {
+    return this.widget.run(`等待 ${name}`, () => {
       return new Promise((resolve) => {
         const existing = document.querySelector(selector);
         if (existing) {

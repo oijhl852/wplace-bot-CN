@@ -88,7 +88,7 @@ export class Widget extends Base {
   public addImage() {
     this.setDisabled('add-image', true)
     return this.run(
-      'Adding image',
+      '添加图片中',
       async () => {
         await this.bot.updateColors()
         const input = document.createElement('input')
@@ -145,7 +145,7 @@ export class Widget extends Base {
     }
     const doneTasks = maxTasks - totalTasks
     const percent = ((doneTasks / maxTasks) * 100) | 0
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% ETA: ${(totalTasks / 120) | 0}h`
+    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${(totalTasks / 120) | 0}小时`
     this.$progressLine.style.transform = `scaleX(${percent}%)`
 
     // Images
@@ -156,8 +156,8 @@ export class Widget extends Base {
       this.$images.append($image)
       $image.className = 'image'
       $image.innerHTML = `<img src="${image.pixels.image.src}">
-  <button class="up" title="Move up" ${index === 0 ? 'disabled' : ''}>▴</button>
-  <button class="down" title="Move down" ${index === this.bot.images.length - 1 ? 'disabled' : ''}>▾</button>`
+  <button class="up" title="上移" ${index === 0 ? 'disabled' : ''}>▴</button>
+  <button class="down" title="下移" ${index === this.bot.images.length - 1 ? 'disabled' : ''}>▾</button>`
       $image
         .querySelector<HTMLButtonElement>('img')!
         .addEventListener('click', () => {
