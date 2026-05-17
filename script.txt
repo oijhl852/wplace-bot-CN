@@ -5,9 +5,9 @@
 // @description  在 https://wplace.live 网站上自动绘制的机器人
 // @author       SoundOfTheSky
 // @license      MPL-2.0
-// @homepageURL  https://github.com/SoundOfTheSky/wplace-bot
-// @updateURL    https://raw.githubusercontent.com/SoundOfTheSky/wplace-bot/refs/heads/main/dist.user.js
-// @downloadURL  https://raw.githubusercontent.com/SoundOfTheSky/wplace-bot/refs/heads/main/dist.user.js
+// @homepageURL  https://github.com/oijhl852/wplace-bot-CN
+// @updateURL    https://raw.githubusercontent.com/oijhl852/wplace-bot-CN/refs/heads/main/dist.user.js
+// @downloadURL  https://raw.githubusercontent.com/oijhl852/wplace-bot-CN/refs/heads/main/dist.user.js
 // @run-at       document-start
 // @match        *://*.wplace.live/*
 // @grant        none

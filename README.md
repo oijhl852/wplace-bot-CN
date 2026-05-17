@@ -12,7 +12,7 @@
 ## 安装
 
 1. 安装 TamperMonkey 浏览器扩展：[Chrome](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en)|[Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/)
-2. [打开此链接](https://github.com/SoundOfTheSky/wplace-bot/raw/refs/heads/main/dist.user.js)
+2. [打开此链接](https://github.com/oijhl852/wplace-bot-CN/raw/refs/heads/main/dist.user.js)
 3. 点击安装
 4. 允许用户脚本
    1. Chrome: 设置 > 扩展程序 > 管理扩展程序 > Tampermonkey > 详情 > 允许用户脚本
@@ -31,7 +31,7 @@
 9. 删除图片。
 10. 最后点击"绘制"开始绘制 :)
 
-![使用说明](https://github.com/SoundOfTheSky/wplace-bot/raw/refs/heads/main/Instruction.png)
+![使用说明](https://github.com/oijhl852/wplace-bot-CN/raw/refs/heads/main/Instruction.png)
 
 ## 验证码绕过
 
