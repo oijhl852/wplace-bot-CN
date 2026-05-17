@@ -72,6 +72,7 @@ export class BotImage extends Base {
   protected readonly $drawTransparent!: HTMLInputElement
   protected readonly $export!: HTMLDivElement
   protected readonly $lock!: HTMLButtonElement
+  protected readonly $progress!: HTMLSpanElement
   protected readonly $opacity!: HTMLInputElement
   protected readonly $progressLine!: HTMLDivElement
   protected readonly $progressText!: HTMLSpanElement
@@ -113,6 +114,7 @@ export class BotImage extends Base {
       $colors: '.colors',
       $delete: '.delete',
       $hide: '.hide',
+      $progress: '.progress',
       $drawColorsInOrder: '.draw-colors-in-order',
       $drawTransparent: '.draw-transparent',
       $export: '.export',
@@ -289,6 +291,7 @@ export class BotImage extends Base {
     this.$wrapper.classList[this.lock ? 'add' : 'remove']('no-pointer-events')
     this.$lock.textContent = this.lock ? '🔒' : '🔓'
     this.$hide.textContent = this.hidden ? '👁‍🗨' : '👁'
+    this.$progress.textContent = `(${doneTasks}/${maxTasks})`
   }
 
   /** Removes image. Don't forget to remove from array inside widget. */

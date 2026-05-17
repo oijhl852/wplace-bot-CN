@@ -315,6 +315,13 @@
   background-color: var(--main-hover);
 }
 
+.wtopbar .progress {
+  margin-right: auto;
+  padding: 0 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 /* Resize */
 .resize {
   position: absolute;
