@@ -375,7 +375,6 @@ function colorToCSS(colorId) {
 
 // src/image.html
 var image_default = `<div class="wtopbar">\r
-  <span class="progress"></span>\r
   <button class="hide">👁</button>\r
   <button class="export">📤</button>\r
   <button class="lock">🔓</button>\r
@@ -721,7 +720,6 @@ class BotImage extends Base2 {
   $drawTransparent;
   $export;
   $lock;
-  $progress;
   $opacity;
   $progressLine;
   $progressText;
@@ -751,7 +749,6 @@ class BotImage extends Base2 {
       $colors: ".colors",
       $delete: ".delete",
       $hide: ".hide",
-      $progress: ".progress",
       $drawColorsInOrder: ".draw-colors-in-order",
       $drawTransparent: ".draw-transparent",
       $export: ".export",
@@ -893,7 +890,6 @@ class BotImage extends Base2 {
     this.$wrapper.classList[this.lock ? "add" : "remove"]("no-pointer-events");
     this.$lock.textContent = this.lock ? "\uD83D\uDD12" : "\uD83D\uDD13";
     this.$hide.textContent = this.hidden ? "\uD83D\uDC41‍\uD83D\uDDE8" : "\uD83D\uDC41";
-    this.$progress.textContent = `(${doneTasks}/${maxTasks})`;
   }
   destroy() {
     super.destroy();
@@ -1467,13 +1463,6 @@ var style_default = `/* stylelint-disable declaration-no-important */
 
 .wtopbar button:hover {
   background-color: var(--main-hover);
-}
-
-.wtopbar .progress {
-  margin-right: auto;
-  padding: 0 8px;
-  font-size: 12px;
-  white-space: nowrap;
 }
 
 /* Resize */
