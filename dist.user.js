@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         wplace-机器人
+// @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
 // @version      4.5.2
 // @description  在 https://wplace.live 网站上自动绘制的机器人
@@ -1551,7 +1551,7 @@ class NoImageError extends WPlaceBotError {
 
 // src/widget.html
 var widget_default = `<button class="wopen-button"><div>></div></button>\r
-<div class="title">WPlace-机器人</div>\r
+<div class="title">wplace-bot-CN</div>\r
 <div class="wform">\r
   <div class="wprogress"><div></div><span></span></div>\r
   <div class="wp wstatus"></div>\r
@@ -1793,6 +1793,7 @@ class WPlaceBot {
     });
   }
   draw() {
+    const randomDelay = () => wait(800 + Math.random() * 1200);
     this.widget.setDisabled("draw", true);
     this.widget.status = "";
     this.mapsCache.clear();
@@ -1823,7 +1824,7 @@ class WPlaceBot {
                 continue;
               this.drawTask(task);
               charges--;
-              await wait(1);
+              await randomDelay();
               end = false;
             }
             if (end)
@@ -1845,7 +1846,7 @@ class WPlaceBot {
             }
             this.drawTask(minImage.tasks.shift());
             charges--;
-            await wait(1);
+            await randomDelay();
           }
           break;
         }
@@ -1855,7 +1856,7 @@ class WPlaceBot {
             for (let task = image.tasks.shift();task && charges > 0; task = image.tasks.shift()) {
               this.drawTask(task);
               charges--;
-              await wait(1);
+              await randomDelay();
             }
           }
         }
