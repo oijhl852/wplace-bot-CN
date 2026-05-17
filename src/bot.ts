@@ -158,7 +158,6 @@ export class WPlaceBot {
 
   /** Start drawing */
   public draw() {
-    const randomDelay = () => wait(800 + Math.random() * 1200)
     this.widget.setDisabled('draw', true)
     this.widget.status = ''
     // Clear maps cache to refetch pixels
@@ -200,7 +199,7 @@ export class WPlaceBot {
                 if (!task) continue
                 this.drawTask(task)
                 charges--
-                await randomDelay()
+                await wait(1)
                 end = false
               }
               if (end) break
@@ -229,7 +228,7 @@ export class WPlaceBot {
               }
               this.drawTask(minImage.tasks.shift()!)
               charges--
-              await randomDelay()
+              await wait(1)
             }
             break
           }
@@ -247,7 +246,7 @@ export class WPlaceBot {
               ) {
                 this.drawTask(task)
                 charges--
-                await randomDelay()
+                await wait(1)
               }
             }
           }

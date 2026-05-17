@@ -1793,7 +1793,6 @@ class WPlaceBot {
     });
   }
   draw() {
-    const randomDelay = () => wait(800 + Math.random() * 1200);
     this.widget.setDisabled("draw", true);
     this.widget.status = "";
     this.mapsCache.clear();
@@ -1824,7 +1823,7 @@ class WPlaceBot {
                 continue;
               this.drawTask(task);
               charges--;
-              await randomDelay();
+              await wait(1);
               end = false;
             }
             if (end)
@@ -1846,7 +1845,7 @@ class WPlaceBot {
             }
             this.drawTask(minImage.tasks.shift());
             charges--;
-            await randomDelay();
+            await wait(1);
           }
           break;
         }
@@ -1856,7 +1855,7 @@ class WPlaceBot {
             for (let task = image.tasks.shift();task && charges > 0; task = image.tasks.shift()) {
               this.drawTask(task);
               charges--;
-              await randomDelay();
+              await wait(1);
             }
           }
         }
