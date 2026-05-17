@@ -1,5 +1,14 @@
 # Wplace-机器人
 
+> 本项目是 [SoundOfTheSky/wplace-bot](https://github.com/SoundOfTheSky/wplace-bot) 的中文分支（Fork）。
+> 原项目采用 MPL-2.0 许可证，感谢原作者 [SoundOfTheSky](https://github.com/SoundOfTheSky) 的出色工作。
+
+### 本分支修改内容
+
+- **🌐 全界面中文化** — UI 按钮、选项、状态提示、错误消息等全部翻译为中文
+- **🙈 新增隐藏图片按钮** — 每张图片可临时隐藏叠加层（👁 / 👁‍🗨 切换），不影响绘制
+- **🔗 安装链接更新** — 自动更新指向本仓库，不会被原仓库覆盖
+
 ## 功能
 
 1. 自动绘制（仍需手动点击验证码）
