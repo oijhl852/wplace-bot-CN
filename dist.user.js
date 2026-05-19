@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.5.4
+// @version      4.5.5
 // @description  在 https://wplace.live 网站上自动绘制的机器人
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -987,6 +987,7 @@ class BotImage extends Base2 {
     this.$canvas.style.opacity = `${this.opacity}%`;
     this.$canvas.style.display = this.hidden ? "none" : "";
     this.$wrapper.style.display = this.hidden ? "none" : "";
+    this.element.style.zIndex = String(999 - this.bot.images.indexOf(this));
     this.$resetSizeSpan.textContent = this.pixels.width.toString();
     this.$brightness.valueAsNumber = this.pixels.brightness;
     this.$strategy.value = this.strategy;
@@ -1260,435 +1261,435 @@ class BotImage extends Base2 {
 }
 
 // src/style.css
-var style_default = `/* stylelint-disable declaration-no-important */
-/* stylelint-disable plugin/no-low-performance-animation-properties */
-/* stylelint-disable no-descending-specificity */
-@import 'https://fonts.googleapis.com/css2?family=Tiny5&display=swap';
-
-:root {
-  --hover: #dfdfdf;
-  --text-invert: #fff;
-  --error: #f00;
-  --resize: 8px;
-  --asdadsasdasdasdasdasdasdasd: 1px;
-  --text: #422e2c;
-  --background: #fbe3cb;
-  --background-hover: #f0d1b3;
-  --background-disabled: #a37648;
-  --main: #66bbb4;
-  --main-hover: #48a19a;
-}
-
-.text-yellow-400.cursor-pointer.z-10.maplibregl-marker.maplibregl-marker-anchor-center:nth-child(
-    -n + FAKE_FAVORITE_LOCATIONS
-  ) {
-  display: none;
-}
-
-/** Widget */
-.wwidget {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  width: 256px;
-  height: 100dvh;
-  border-right: var(--text) 2px solid;
-  background-color: var(--background);
-  color: var(--text);
-  font-family: 'Tiny5', sans-serif;
-  transition: transform 0.5s;
-  transform: translateX(-100%);
-}
-
-.wwidget .title {
-  border-bottom: var(--text) 2px solid;
-  background-color: var(--main);
-  font-size: 32px;
-  text-align: center;
-}
-
-.wwidget.wopen .wopen-button div {
-  transform: rotate(180deg);
-}
-
-.wwidget.wopen {
-  box-shadow: 8px 0 16px -8px var(--main);
-  transform: translateX(0);
-}
-
-.wwidget .wopen-button div {
-  transition: transform 0.5s;
-}
-
-.wwidget .wopen-button {
-  position: absolute;
-  top: calc(50% - 24px);
-  right: -24px;
-  width: 24px;
-  height: 48px;
-  border: var(--text) 2px solid;
-  border-left: none;
-  background-color: var(--background);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.wwidget .images {
-  display: block;
-  overflow-y: auto;
-  height: auto;
-  max-height: 240px;
-}
-
-.wwidget .images .image {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 64px;
-}
-
-.wwidget .images .image img {
-  max-width: 100%;
-  max-height: 100%;
-  margin: 0 auto;
-  cursor: pointer;
-}
-
-.wwidget .images .image button {
-  width: 32px;
-  height: 64px;
-  font-weight: bolder;
-  font-size: 24px;
-}
-
-/** Image */
-.wimage {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9;
-}
-
-.wimage canvas {
-  width: 100%;
-  box-shadow: inset var(--text) 0 0 0 2px;
-  cursor: all-scroll;
-  image-rendering: pixelated;
-}
-
-.wimage .wform {
-  position: absolute;
-  display: none;
-  width: 100%;
-  min-width: 256px;
-  border: var(--text) 2px solid;
-  background-color: var(--background);
-  color: var(--text);
-}
-
-.wimage:hover .wrapper .wform {
-  display: block;
-}
-
-/* Settings */
-.wform {
-  font-family: 'Tiny5', sans-serif;
-}
-
-.wform > * {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  width: calc(100% - 8px);
-  margin: 4px;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wform button,
-.wform input,
-.wform select,
-.wform textarea,
-.wform label:has(input[type='checkbox']) {
-  padding: 0 8px;
-  border: var(--text) 2px solid;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.wform input[type='range'] {
-  width: 100%;
-  height: 32px;
-  background: linear-gradient(
-    to right,
-    var(--main) var(--val),
-    var(--background-disabled) var(--val)
-  );
-  cursor: ew-resize;
-  appearance: none;
-}
-
-.wform input[type='range']::-moz-range-thumb {
-  width: 0;
-  height: 0;
-  opacity: 0;
-}
-
-.wform button:hover,
-.wform input:hover {
-  background-color: var(--background-hover);
-}
-
-.wform button:disabled,
-.wform input:disabled {
-  background-color: var(--background-disabled);
-  cursor: no-drop;
-}
-
-.wform label input:not([type='checkbox']) {
-  width: inherit;
-}
-
-.wform .wprogress {
-  position: relative;
-  width: 100%;
-  margin: 0;
-}
-
-.wform .wprogress div {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: var(--main);
-  transform-origin: left;
-}
-
-.wform .wprogress span {
-  z-index: 0;
-}
-
-.wform .colors {
-  position: relative;
-  width: 100%;
-  height: 32px;
-  margin: 0;
-  background: repeating-linear-gradient(
-    25deg,
-    var(--background),
-    var(--background),
-    var(--hover) 8px,
-    var(--hover) 12px
-  );
-  cursor: ew-resize;
-}
-
-.wform .colors > button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  cursor: grab;
-  transition:
-    0.2s left,
-    0.2s width,
-    0.2s filter;
-}
-
-.wform .colors > button:hover {
-  filter: brightness(0.6);
-}
-
-.wform .colors > button.color-disabled::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  box-shadow: inset 0 0 0 2px var(--error);
-  pointer-events: none;
-}
-
-.wform .colors > button.substitution button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0 4px;
-  color: var(--background);
-  transition: 0.2s filter;
-}
-
-.wform .colors > button.substitution button:hover {
-  filter: brightness(0.6);
-}
-
-.wform .colors > button.substitution button:first-child {
-  background: var(--wreal-color);
-  text-align: left;
-  clip-path: polygon(0 0, 80% 0, 20% 100%, 0 100%);
-}
-
-.wform .colors > button.substitution button:last-child {
-  background: var(--wsubstitution-color);
-  text-align: right;
-  clip-path: polygon(100% 100%, 100% 0, 80% 0, 20% 100%);
-}
-
-.wform .colors > button.substitution:hover {
-  filter: none;
-}
-
-.wform .colors:hover > button {
-  left: var(--wleft) !important;
-  width: var(--wwidth) !important;
-}
-
-/* Move */
-.wtopbar {
-  position: absolute;
-  top: -24px;
-  left: 0;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  width: 100%;
-  min-width: min-content;
-  min-width: 256px;
-  border: var(--text) 2px solid;
-  background-color: var(--main);
-  color: var(--text-invert);
-  cursor: all-scroll;
-}
-
-.wtopbar button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-}
-
-.wtopbar button:hover {
-  background-color: var(--main-hover);
-}
-
-/* Resize */
-.resize {
-  position: absolute;
-  width: calc(100% - var(--resize) - var(--resize));
-  height: calc(100% - var(--resize) - var(--resize));
-}
-
-.resize.n {
-  top: 0;
-  left: var(--resize);
-  height: var(--resize);
-  cursor: n-resize;
-}
-
-.resize.e {
-  top: var(--resize);
-  right: 0;
-  width: var(--resize);
-  cursor: e-resize;
-}
-
-.resize.s {
-  bottom: 0;
-  left: var(--resize);
-  height: var(--resize);
-  cursor: s-resize;
-}
-
-.resize.w {
-  top: var(--resize);
-  left: 0;
-  width: var(--resize);
-  cursor: w-resize;
-}
-
-/* Hide overlay: hide only canvas+wrapper, keep wtopbar */
-.wimage.hide-overlay canvas {
-  display: none;
-}
-.wimage.hide-overlay .wrapper {
-  display: none;
-}
-
-/* Error flash */
-@keyframes wplace-error-flash {
-  0%, 100% { border-color: var(--text); }
-  50% { border-color: var(--error); }
-}
-.wstatus.error {
-  animation: wplace-error-flash 0.5s ease-in-out 3;
-  color: var(--error);
-  font-weight: bold;
-}
-
-/* Crop */
-.coord-label {
-  font-size: 11px;
-  justify-content: center;
-  gap: 4px;
-}
-.coord-icon {
-  font-size: 12px;
-}
-.crop-section {
-  flex-direction: column;
-  gap: 4px;
-}
-.crop-line {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-}
-.crop-line button {
-  width: 32px;
-  height: 28px;
-  padding: 0;
-  font-size: 14px;
-}
-.crop-line .crop-hint {
-  font-size: 11px;
-  color: var(--text);
-  opacity: 0.7;
-  margin-left: 4px;
-}
-.crop-input {
-  width: 48px;
-  height: 28px;
-  padding: 0 4px;
-  text-align: center;
-  font-size: 12px;
-}
-.crop-apply {
-  height: 28px;
-  padding: 0 12px;
-  font-size: 12px;
-}
-
-/* Utility */
-.wp {
-  padding: 0 8px;
-}
-
-.hidden {
-  display: none;
-}
-
-.no-pointer-events {
-  height: 1px;
-  pointer-events: none;
-}
+var style_default = `/* stylelint-disable declaration-no-important */\r
+/* stylelint-disable plugin/no-low-performance-animation-properties */\r
+/* stylelint-disable no-descending-specificity */\r
+@import 'https://fonts.googleapis.com/css2?family=Tiny5&display=swap';\r
+\r
+:root {\r
+  --hover: #dfdfdf;\r
+  --text-invert: #fff;\r
+  --error: #f00;\r
+  --resize: 8px;\r
+  --asdadsasdasdasdasdasdasdasd: 1px;\r
+  --text: #422e2c;\r
+  --background: #fbe3cb;\r
+  --background-hover: #f0d1b3;\r
+  --background-disabled: #a37648;\r
+  --main: #66bbb4;\r
+  --main-hover: #48a19a;\r
+}\r
+\r
+.text-yellow-400.cursor-pointer.z-10.maplibregl-marker.maplibregl-marker-anchor-center:nth-child(\r
+    -n + FAKE_FAVORITE_LOCATIONS\r
+  ) {\r
+  display: none;\r
+}\r
+\r
+/** Widget */\r
+.wwidget {\r
+  position: fixed;\r
+  top: 0;\r
+  left: 0;\r
+  z-index: 1000;\r
+  width: 256px;\r
+  height: 100dvh;\r
+  border-right: var(--text) 2px solid;\r
+  background-color: var(--background);\r
+  color: var(--text);\r
+  font-family: 'Tiny5', sans-serif;\r
+  transition: transform 0.5s;\r
+  transform: translateX(-100%);\r
+}\r
+\r
+.wwidget .title {\r
+  border-bottom: var(--text) 2px solid;\r
+  background-color: var(--main);\r
+  font-size: 32px;\r
+  text-align: center;\r
+}\r
+\r
+.wwidget.wopen .wopen-button div {\r
+  transform: rotate(180deg);\r
+}\r
+\r
+.wwidget.wopen {\r
+  box-shadow: 8px 0 16px -8px var(--main);\r
+  transform: translateX(0);\r
+}\r
+\r
+.wwidget .wopen-button div {\r
+  transition: transform 0.5s;\r
+}\r
+\r
+.wwidget .wopen-button {\r
+  position: absolute;\r
+  top: calc(50% - 24px);\r
+  right: -24px;\r
+  width: 24px;\r
+  height: 48px;\r
+  border: var(--text) 2px solid;\r
+  border-left: none;\r
+  background-color: var(--background);\r
+  color: var(--text);\r
+  cursor: pointer;\r
+}\r
+\r
+.wwidget .images {\r
+  display: block;\r
+  overflow-y: auto;\r
+  height: auto;\r
+  max-height: 240px;\r
+}\r
+\r
+.wwidget .images .image {\r
+  display: flex;\r
+  align-items: center;\r
+  width: 100%;\r
+  height: 64px;\r
+}\r
+\r
+.wwidget .images .image img {\r
+  max-width: 100%;\r
+  max-height: 100%;\r
+  margin: 0 auto;\r
+  cursor: pointer;\r
+}\r
+\r
+.wwidget .images .image button {\r
+  width: 32px;\r
+  height: 64px;\r
+  font-weight: bolder;\r
+  font-size: 24px;\r
+}\r
+\r
+/** Image */\r
+.wimage {\r
+  position: fixed;\r
+  top: 0;\r
+  left: 0;\r
+  z-index: 9;\r
+}\r
+\r
+.wimage canvas {\r
+  width: 100%;\r
+  box-shadow: inset var(--text) 0 0 0 2px;\r
+  cursor: all-scroll;\r
+  image-rendering: pixelated;\r
+}\r
+\r
+.wimage .wform {\r
+  position: absolute;\r
+  display: none;\r
+  width: 100%;\r
+  min-width: 256px;\r
+  border: var(--text) 2px solid;\r
+  background-color: var(--background);\r
+  color: var(--text);\r
+}\r
+\r
+.wimage:hover .wrapper .wform {\r
+  display: block;\r
+}\r
+\r
+/* Settings */\r
+.wform {\r
+  font-family: 'Tiny5', sans-serif;\r
+}\r
+\r
+.wform > * {\r
+  display: flex;\r
+  justify-content: center;\r
+  align-items: center;\r
+  overflow: hidden;\r
+  width: calc(100% - 8px);\r
+  margin: 4px;\r
+  text-align: center;\r
+  text-overflow: ellipsis;\r
+  white-space: nowrap;\r
+}\r
+\r
+.wform button,\r
+.wform input,\r
+.wform select,\r
+.wform textarea,\r
+.wform label:has(input[type='checkbox']) {\r
+  padding: 0 8px;\r
+  border: var(--text) 2px solid;\r
+  cursor: pointer;\r
+  transition: background-color 0.2s;\r
+}\r
+\r
+.wform input[type='range'] {\r
+  width: 100%;\r
+  height: 32px;\r
+  background: linear-gradient(\r
+    to right,\r
+    var(--main) var(--val),\r
+    var(--background-disabled) var(--val)\r
+  );\r
+  cursor: ew-resize;\r
+  appearance: none;\r
+}\r
+\r
+.wform input[type='range']::-moz-range-thumb {\r
+  width: 0;\r
+  height: 0;\r
+  opacity: 0;\r
+}\r
+\r
+.wform button:hover,\r
+.wform input:hover {\r
+  background-color: var(--background-hover);\r
+}\r
+\r
+.wform button:disabled,\r
+.wform input:disabled {\r
+  background-color: var(--background-disabled);\r
+  cursor: no-drop;\r
+}\r
+\r
+.wform label input:not([type='checkbox']) {\r
+  width: inherit;\r
+}\r
+\r
+.wform .wprogress {\r
+  position: relative;\r
+  width: 100%;\r
+  margin: 0;\r
+}\r
+\r
+.wform .wprogress div {\r
+  position: absolute;\r
+  width: 100%;\r
+  height: 100%;\r
+  background-color: var(--main);\r
+  transform-origin: left;\r
+}\r
+\r
+.wform .wprogress span {\r
+  z-index: 0;\r
+}\r
+\r
+.wform .colors {\r
+  position: relative;\r
+  width: 100%;\r
+  height: 32px;\r
+  margin: 0;\r
+  background: repeating-linear-gradient(\r
+    25deg,\r
+    var(--background),\r
+    var(--background),\r
+    var(--hover) 8px,\r
+    var(--hover) 12px\r
+  );\r
+  cursor: ew-resize;\r
+}\r
+\r
+.wform .colors > button {\r
+  position: absolute;\r
+  top: 0;\r
+  left: 0;\r
+  width: 100%;\r
+  height: 100%;\r
+  border: none;\r
+  cursor: grab;\r
+  transition:\r
+    0.2s left,\r
+    0.2s width,\r
+    0.2s filter;\r
+}\r
+\r
+.wform .colors > button:hover {\r
+  filter: brightness(0.6);\r
+}\r
+\r
+.wform .colors > button.color-disabled::before {\r
+  content: '';\r
+  position: absolute;\r
+  inset: 0;\r
+  z-index: 2;\r
+  box-shadow: inset 0 0 0 2px var(--error);\r
+  pointer-events: none;\r
+}\r
+\r
+.wform .colors > button.substitution button {\r
+  position: absolute;\r
+  top: 0;\r
+  left: 0;\r
+  width: 100%;\r
+  height: 100%;\r
+  padding: 0 4px;\r
+  color: var(--background);\r
+  transition: 0.2s filter;\r
+}\r
+\r
+.wform .colors > button.substitution button:hover {\r
+  filter: brightness(0.6);\r
+}\r
+\r
+.wform .colors > button.substitution button:first-child {\r
+  background: var(--wreal-color);\r
+  text-align: left;\r
+  clip-path: polygon(0 0, 80% 0, 20% 100%, 0 100%);\r
+}\r
+\r
+.wform .colors > button.substitution button:last-child {\r
+  background: var(--wsubstitution-color);\r
+  text-align: right;\r
+  clip-path: polygon(100% 100%, 100% 0, 80% 0, 20% 100%);\r
+}\r
+\r
+.wform .colors > button.substitution:hover {\r
+  filter: none;\r
+}\r
+\r
+.wform .colors:hover > button {\r
+  left: var(--wleft) !important;\r
+  width: var(--wwidth) !important;\r
+}\r
+\r
+/* Move */\r
+.wtopbar {\r
+  position: absolute;\r
+  top: -24px;\r
+  left: 0;\r
+  display: flex;\r
+  justify-content: end;\r
+  align-items: center;\r
+  width: 100%;\r
+  min-width: min-content;\r
+  min-width: 256px;\r
+  border: var(--text) 2px solid;\r
+  background-color: var(--main);\r
+  color: var(--text-invert);\r
+  cursor: all-scroll;\r
+}\r
+\r
+.wtopbar button {\r
+  display: flex;\r
+  justify-content: center;\r
+  align-items: center;\r
+  width: 24px;\r
+  height: 24px;\r
+}\r
+\r
+.wtopbar button:hover {\r
+  background-color: var(--main-hover);\r
+}\r
+\r
+/* Resize */\r
+.resize {\r
+  position: absolute;\r
+  width: calc(100% - var(--resize) - var(--resize));\r
+  height: calc(100% - var(--resize) - var(--resize));\r
+}\r
+\r
+.resize.n {\r
+  top: 0;\r
+  left: var(--resize);\r
+  height: var(--resize);\r
+  cursor: n-resize;\r
+}\r
+\r
+.resize.e {\r
+  top: var(--resize);\r
+  right: 0;\r
+  width: var(--resize);\r
+  cursor: e-resize;\r
+}\r
+\r
+.resize.s {\r
+  bottom: 0;\r
+  left: var(--resize);\r
+  height: var(--resize);\r
+  cursor: s-resize;\r
+}\r
+\r
+.resize.w {\r
+  top: var(--resize);\r
+  left: 0;\r
+  width: var(--resize);\r
+  cursor: w-resize;\r
+}\r
+\r
+/* Hide overlay: hide only canvas+wrapper, keep wtopbar */\r
+.wimage.hide-overlay canvas {\r
+  display: none;\r
+}\r
+.wimage.hide-overlay .wrapper {\r
+  display: none;\r
+}\r
+\r
+/* Error flash */\r
+@keyframes wplace-error-flash {\r
+  0%, 100% { border-color: var(--text); }\r
+  50% { border-color: var(--error); }\r
+}\r
+.wstatus.error {\r
+  animation: wplace-error-flash 0.5s ease-in-out 3;\r
+  color: var(--error);\r
+  font-weight: bold;\r
+}\r
+\r
+/* Crop */\r
+.coord-label {\r
+  font-size: 11px;\r
+  justify-content: center;\r
+  gap: 4px;\r
+}\r
+.coord-icon {\r
+  font-size: 12px;\r
+}\r
+.crop-section {\r
+  flex-direction: column;\r
+  gap: 4px;\r
+}\r
+.crop-line {\r
+  display: flex;\r
+  justify-content: center;\r
+  align-items: center;\r
+  gap: 4px;\r
+  width: 100%;\r
+}\r
+.crop-line button {\r
+  width: 32px;\r
+  height: 28px;\r
+  padding: 0;\r
+  font-size: 14px;\r
+}\r
+.crop-line .crop-hint {\r
+  font-size: 11px;\r
+  color: var(--text);\r
+  opacity: 0.7;\r
+  margin-left: 4px;\r
+}\r
+.crop-input {\r
+  width: 48px;\r
+  height: 28px;\r
+  padding: 0 4px;\r
+  text-align: center;\r
+  font-size: 12px;\r
+}\r
+.crop-apply {\r
+  height: 28px;\r
+  padding: 0 12px;\r
+  font-size: 12px;\r
+}\r
+\r
+/* Utility */\r
+.wp {\r
+  padding: 0 8px;\r
+}\r
+\r
+.hidden {\r
+  display: none;\r
+}\r
+\r
+.no-pointer-events {\r
+  height: 1px;\r
+  pointer-events: none;\r
+}\r
 `;
 
 // src/errors.ts

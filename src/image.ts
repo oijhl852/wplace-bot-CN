@@ -326,6 +326,7 @@ export class BotImage extends Base {
     this.$canvas.style.opacity = `${this.opacity}%`
     this.$canvas.style.display = this.hidden ? 'none' : ''
     this.$wrapper.style.display = this.hidden ? 'none' : ''
+    this.element.style.zIndex = String(999 - this.bot.images.indexOf(this))
 
     this.$resetSizeSpan.textContent = this.pixels.width.toString()
     this.$brightness.valueAsNumber = this.pixels.brightness
