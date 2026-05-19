@@ -1,4 +1,4 @@
-# Wplace-机器人
+# Wplace-bot-CN
 
 > 本项目是 [SoundOfTheSky/wplace-bot](https://github.com/SoundOfTheSky/wplace-bot) 的中文分支（Fork）。
 > 原项目采用 MPL-2.0 许可证，感谢原作者 [SoundOfTheSky](https://github.com/SoundOfTheSky) 的出色工作。
