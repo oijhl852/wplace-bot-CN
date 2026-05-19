@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.5.3
+// @version      4.5.4
 // @description  在 https://wplace.live 网站上自动绘制的机器人
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -401,6 +401,23 @@ var image_default = `<div class="wtopbar">\r
       </select>\r
     </label>\r
     <button class="reset-size">重置大小 [<span></span>像素]</button>\r
+    <label class="coord-label"><span class="coord-icon">📍</span>坐标: <span class="coords"></span></label>\r
+    <div class="crop-section">\r
+      <div class="crop-line">\r
+        <button class="crop-left">←</button>\r
+        <button class="crop-right">→</button>\r
+        <button class="crop-up">↑</button>\r
+        <button class="crop-down">↓</button>\r
+        <span class="crop-hint">裁切</span>\r
+      </div>\r
+      <div class="crop-line">\r
+        <input class="crop-input" id="cropL" type="number" min="0" value="0" placeholder="左">\r
+        <input class="crop-input" id="cropR" type="number" min="0" value="0" placeholder="右">\r
+        <input class="crop-input" id="cropT" type="number" min="0" value="0" placeholder="上">\r
+        <input class="crop-input" id="cropB" type="number" min="0" value="0" placeholder="下">\r
+        <button class="crop-apply">执行</button>\r
+      </div>\r
+    </div>\r
     <label>\r
       <input type="checkbox" class="draw-transparent" />&nbsp;擦除透明像素\r
     </label>\r
@@ -518,6 +535,46 @@ class Pixels {
         }
       }
     }
+  }
+  crop(left, right, top, bottom) {
+    const newWidth = this.pixels[0].length - left - right;
+    const newHeight = this.pixels.length - top - bottom;
+    if (newWidth <= 0 || newHeight <= 0)
+      return;
+    if (left < 0 || right < 0 || top < 0 || bottom < 0)
+      return;
+    this.pixels = this.pixels.slice(top, top + newHeight).map((row) => row.slice(left, left + newWidth));
+    this.colors.clear();
+    for (const row of this.pixels)
+      for (const colorIndex of row) {
+        if (colorIndex === 0)
+          continue;
+        const stat = this.colors.get(colorIndex);
+        if (stat)
+          stat.amount++;
+        else
+          this.colors.set(colorIndex, { color: colorIndex, amount: 1, realColor: colorIndex });
+      }
+    this.canvas.width = newWidth;
+    this.canvas.height = newHeight;
+    this.width = newWidth;
+    const data = this.context.createImageData(newWidth, newHeight);
+    for (let y = 0;y < newHeight; y++)
+      for (let x = 0;x < newWidth; x++) {
+        const ci = this.pixels[y][x];
+        if (ci === 0)
+          continue;
+        const rgb = COLORS_RGB[ci];
+        if (!rgb)
+          continue;
+        const [r, g, b] = rgb.split(",").map(Number);
+        const idx = (y * newWidth + x) * 4;
+        data.data[idx] = r;
+        data.data[idx + 1] = g;
+        data.data[idx + 2] = b;
+        data.data[idx + 3] = 255;
+      }
+    this.context.putImageData(data, 0, 0);
   }
   toJSON() {
     const canvas = document.createElement("canvas");
@@ -728,6 +785,16 @@ class BotImage extends Base2 {
   $settings;
   $strategy;
   $topbar;
+  $coords;
+  $cropLeft;
+  $cropRight;
+  $cropUp;
+  $cropDown;
+  $cropApply;
+  $cropL;
+  $cropR;
+  $cropT;
+  $cropB;
   $wrapper;
   constructor(bot, position, pixels, strategy = "SPIRAL_FROM_CENTER" /* SPIRAL_FROM_CENTER */, opacity = 50, drawTransparentPixels = false, drawColorsInOrder = false, colors = [], lock = false, hidden = false) {
     super();
@@ -760,7 +827,17 @@ class BotImage extends Base2 {
       $settings: ".wform",
       $strategy: ".strategy",
       $topbar: ".wtopbar",
-      $wrapper: ".wrapper"
+      $wrapper: ".wrapper",
+      $coords: ".coords",
+      $cropLeft: ".crop-left",
+      $cropRight: ".crop-right",
+      $cropUp: ".crop-up",
+      $cropDown: ".crop-down",
+      $cropApply: ".crop-apply",
+      $cropL: "#cropL",
+      $cropR: "#cropR",
+      $cropT: "#cropT",
+      $cropB: "#cropB"
     });
     this.$resetSizeSpan = this.$resetSize.querySelector("span");
     this.$canvas = this.pixels.canvas;
@@ -817,6 +894,40 @@ class BotImage extends Base2 {
       save(this.bot);
     });
     this.registerEvent(this.$delete, "click", this.destroy.bind(this));
+    const doCrop = (left, right, top, bottom) => {
+      if (this.lock)
+        return;
+      this.position.globalX += left;
+      this.position.globalY += top;
+      this.pixels.crop(left, right, top, bottom);
+      this.updateColors();
+      this.update();
+      save(this.bot);
+    };
+    this.registerEvent(this.$cropLeft, "click", () => doCrop(1, 0, 0, 0));
+    this.registerEvent(this.$cropRight, "click", () => doCrop(0, 1, 0, 0));
+    this.registerEvent(this.$cropUp, "click", () => doCrop(0, 0, 1, 0));
+    this.registerEvent(this.$cropDown, "click", () => doCrop(0, 0, 0, 1));
+    this.registerEvent(this.$cropApply, "click", () => {
+      if (this.lock)
+        return;
+      const left = parseInt(this.$cropL.value) || 0;
+      const right = parseInt(this.$cropR.value) || 0;
+      const top = parseInt(this.$cropT.value) || 0;
+      const bottom = parseInt(this.$cropB.value) || 0;
+      if (left > 0)
+        this.position.globalX += left;
+      if (top > 0)
+        this.position.globalY += top;
+      this.pixels.crop(left, right, top, bottom);
+      this.updateColors();
+      this.update();
+      save(this.bot);
+      this.$cropL.value = "0";
+      this.$cropR.value = "0";
+      this.$cropT.value = "0";
+      this.$cropB.value = "0";
+    });
     this.registerEvent(this.$export, "click", this.export.bind(this));
     this.registerEvent(this.$topbar, "mousedown", this.moveStart.bind(this));
     this.registerEvent(this.$canvas, "mousedown", this.moveStart.bind(this));
@@ -890,6 +1001,7 @@ class BotImage extends Base2 {
     this.$wrapper.classList[this.lock ? "add" : "remove"]("no-pointer-events");
     this.$lock.textContent = this.lock ? "\uD83D\uDD12" : "\uD83D\uDD13";
     this.$hide.textContent = this.hidden ? "\uD83D\uDC41‍\uD83D\uDDE8" : "\uD83D\uDC41";
+    this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`;
   }
   destroy() {
     super.destroy();
@@ -1517,6 +1629,51 @@ var style_default = `/* stylelint-disable declaration-no-important */
   animation: wplace-error-flash 0.5s ease-in-out 3;
   color: var(--error);
   font-weight: bold;
+}
+
+/* Crop */
+.coord-label {
+  font-size: 11px;
+  justify-content: center;
+  gap: 4px;
+}
+.coord-icon {
+  font-size: 12px;
+}
+.crop-section {
+  flex-direction: column;
+  gap: 4px;
+}
+.crop-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+.crop-line button {
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+}
+.crop-line .crop-hint {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.crop-input {
+  width: 48px;
+  height: 28px;
+  padding: 0 4px;
+  text-align: center;
+  font-size: 12px;
+}
+.crop-apply {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
 }
 
 /* Utility */

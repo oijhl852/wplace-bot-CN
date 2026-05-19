@@ -80,6 +80,16 @@ export class BotImage extends Base {
   protected readonly $settings!: HTMLDivElement
   protected readonly $strategy!: HTMLSelectElement
   protected readonly $topbar!: HTMLDivElement
+  protected readonly $coords!: HTMLSpanElement
+  protected readonly $cropLeft!: HTMLButtonElement
+  protected readonly $cropRight!: HTMLButtonElement
+  protected readonly $cropUp!: HTMLButtonElement
+  protected readonly $cropDown!: HTMLButtonElement
+  protected readonly $cropApply!: HTMLButtonElement
+  protected readonly $cropL!: HTMLInputElement
+  protected readonly $cropR!: HTMLInputElement
+  protected readonly $cropT!: HTMLInputElement
+  protected readonly $cropB!: HTMLInputElement
   protected readonly $wrapper!: HTMLDivElement
 
   public constructor(
@@ -125,6 +135,16 @@ export class BotImage extends Base {
       $strategy: '.strategy',
       $topbar: '.wtopbar',
       $wrapper: '.wrapper',
+      $coords: '.coords',
+      $cropLeft: '.crop-left',
+      $cropRight: '.crop-right',
+      $cropUp: '.crop-up',
+      $cropDown: '.crop-down',
+      $cropApply: '.crop-apply',
+      $cropL: '#cropL',
+      $cropR: '#cropR',
+      $cropT: '#cropT',
+      $cropB: '#cropB',
     })
     this.$resetSizeSpan =
       this.$resetSize.querySelector<HTMLSpanElement>('span')!
@@ -200,6 +220,38 @@ export class BotImage extends Base {
     })
 
     this.registerEvent(this.$delete, 'click', this.destroy.bind(this))
+
+    // Crop by 1 pixel
+    const doCrop = (left, right, top, bottom) => {
+      if (this.lock) return
+      this.position.globalX += left
+      this.position.globalY += top
+      this.pixels.crop(left, right, top, bottom)
+      this.updateColors()
+      this.update()
+      save(this.bot)
+    }
+    this.registerEvent(this.$cropLeft, 'click', () => doCrop(1, 0, 0, 0))
+    this.registerEvent(this.$cropRight, 'click', () => doCrop(0, 1, 0, 0))
+    this.registerEvent(this.$cropUp, 'click', () => doCrop(0, 0, 1, 0))
+    this.registerEvent(this.$cropDown, 'click', () => doCrop(0, 0, 0, 1))
+    this.registerEvent(this.$cropApply, 'click', () => {
+      if (this.lock) return
+      const left = parseInt(this.$cropL.value) || 0
+      const right = parseInt(this.$cropR.value) || 0
+      const top = parseInt(this.$cropT.value) || 0
+      const bottom = parseInt(this.$cropB.value) || 0
+      if (left > 0) this.position.globalX += left
+      if (top > 0) this.position.globalY += top
+      this.pixels.crop(left, right, top, bottom)
+      this.updateColors()
+      this.update()
+      save(this.bot)
+      this.$cropL.value = '0'
+      this.$cropR.value = '0'
+      this.$cropT.value = '0'
+      this.$cropB.value = '0'
+    })
 
     // Export
     this.registerEvent(this.$export, 'click', this.export.bind(this))
@@ -289,6 +341,7 @@ export class BotImage extends Base {
     this.$wrapper.classList[this.lock ? 'add' : 'remove']('no-pointer-events')
     this.$lock.textContent = this.lock ? '🔒' : '🔓'
     this.$hide.textContent = this.hidden ? '👁‍🗨' : '👁'
+    this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`
   }
 
   /** Removes image. Don't forget to remove from array inside widget. */

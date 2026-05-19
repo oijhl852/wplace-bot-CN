@@ -369,6 +369,51 @@
   font-weight: bold;
 }
 
+/* Crop */
+.coord-label {
+  font-size: 11px;
+  justify-content: center;
+  gap: 4px;
+}
+.coord-icon {
+  font-size: 12px;
+}
+.crop-section {
+  flex-direction: column;
+  gap: 4px;
+}
+.crop-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+.crop-line button {
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+}
+.crop-line .crop-hint {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.crop-input {
+  width: 48px;
+  height: 28px;
+  padding: 0 4px;
+  text-align: center;
+  font-size: 12px;
+}
+.crop-apply {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
 /* Utility */
 .wp {
   padding: 0 8px;

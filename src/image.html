@@ -25,6 +25,23 @@
       </select>
     </label>
     <button class="reset-size">重置大小 [<span></span>像素]</button>
+    <label class="coord-label"><span class="coord-icon">📍</span>坐标: <span class="coords"></span></label>
+    <div class="crop-section">
+      <div class="crop-line">
+        <button class="crop-left">←</button>
+        <button class="crop-right">→</button>
+        <button class="crop-up">↑</button>
+        <button class="crop-down">↓</button>
+        <span class="crop-hint">裁切</span>
+      </div>
+      <div class="crop-line">
+        <input class="crop-input" id="cropL" type="number" min="0" value="0" placeholder="左">
+        <input class="crop-input" id="cropR" type="number" min="0" value="0" placeholder="右">
+        <input class="crop-input" id="cropT" type="number" min="0" value="0" placeholder="上">
+        <input class="crop-input" id="cropB" type="number" min="0" value="0" placeholder="下">
+        <button class="crop-apply">执行</button>
+      </div>
+    </div>
     <label>
       <input type="checkbox" class="draw-transparent" />&nbsp;擦除透明像素
     </label>

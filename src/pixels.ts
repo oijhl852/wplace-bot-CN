@@ -161,6 +161,47 @@ export class Pixels {
     }
   }
 
+  /** Crop pixels from edges */
+  public crop(left: number, right: number, top: number, bottom: number) {
+    const newWidth = this.pixels[0]!.length - left - right
+    const newHeight = this.pixels.length - top - bottom
+    if (newWidth <= 0 || newHeight <= 0) return
+    if (left < 0 || right < 0 || top < 0 || bottom < 0) return
+
+    // Slice pixels array
+    this.pixels = this.pixels.slice(top, top + newHeight).map(row => row.slice(left, left + newWidth))
+
+    // Recalculate colors
+    this.colors.clear()
+    for (const row of this.pixels)
+      for (const colorIndex of row) {
+        if (colorIndex === 0) continue
+        const stat = this.colors.get(colorIndex)
+        if (stat) stat.amount++
+        else this.colors.set(colorIndex, { color: colorIndex, amount: 1, realColor: colorIndex })
+      }
+
+    // Redraw canvas
+    this.canvas.width = newWidth
+    this.canvas.height = newHeight
+    this.width = newWidth
+    const data = this.context.createImageData(newWidth, newHeight)
+    for (let y = 0; y < newHeight; y++)
+      for (let x = 0; x < newWidth; x++) {
+        const ci = this.pixels[y]![x]!
+        if (ci === 0) continue
+        const rgb = COLORS_RGB[ci]
+        if (!rgb) continue
+        const [r, g, b] = rgb.split(',').map(Number)
+        const idx = (y * newWidth + x) * 4
+        data.data[idx] = r!
+        data.data[idx + 1] = g!
+        data.data[idx + 2] = b!
+        data.data[idx + 3] = 255
+      }
+    this.context.putImageData(data, 0, 0)
+  }
+
   public toJSON() {
     const canvas = document.createElement('canvas')
     canvas.width = this.image.naturalWidth
