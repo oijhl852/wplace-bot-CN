@@ -794,6 +794,7 @@ var locales = {
     "widget.status.unfocus": "Unfocus window",
     "widget.status.waiting": (name) => `Waiting ${name}`,
     "widget.status.addImage": "Adding image",
+    "widget.imageSpecs": (w, h, total) => `${w}×${h} (${total}px)`,
     "widget.langToggle": "EN/中",
     "image.opacity": "Opacity",
     "image.brightness": "Brightness",
@@ -844,6 +845,7 @@ var locales = {
     "widget.status.unfocus": "取消聚焦窗口",
     "widget.status.waiting": (name) => `等待 ${name}`,
     "widget.status.addImage": "添加图片中",
+    "widget.imageSpecs": (w, h, total) => `${w}×${h}（${total} 像素）`,
     "widget.langToggle": "中/EN",
     "image.opacity": "不透明度",
     "image.brightness": "亮度",
@@ -1564,7 +1566,16 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   display: flex;\r
   align-items: center;\r
   width: 100%;\r
-  height: 64px;\r
+  min-height: 64px;\r
+  flex-wrap: wrap;\r
+}\r
+\r
+.wwidget .images .image .image-specs {\r
+  font-size: 10px;\r
+  white-space: nowrap;\r
+  margin: 0 4px;\r
+  color: var(--text);\r
+  opacity: 0.85;\r
 }\r
 \r
 .wwidget .images .image img {\r
@@ -2088,7 +2099,11 @@ class Widget extends Base2 {
       const $image = document.createElement("div");
       this.$images.append($image);
       $image.className = "image";
+      const imgWidth = image.pixels.pixels[0].length;
+      const imgHeight = image.pixels.pixels.length;
+      const totalPixels = imgWidth * imgHeight;
       $image.innerHTML = `<img src="${image.pixels.image.src}">
+  <span class="image-specs">${t("widget.imageSpecs", imgWidth, imgHeight, totalPixels)}</span>
   <button class="up" title="上移" ${index === 0 ? "disabled" : ""}>▴</button>
   <button class="down" title="下移" ${index === this.bot.images.length - 1 ? "disabled" : ""}>▾</button>`;
       $image.querySelector("img").addEventListener("click", () => {

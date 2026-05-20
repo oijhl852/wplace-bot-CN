@@ -162,7 +162,11 @@ export class Widget extends Base {
       const $image = document.createElement('div')
       this.$images.append($image)
       $image.className = 'image'
+      const imgWidth = image.pixels.pixels[0]!.length
+      const imgHeight = image.pixels.pixels.length
+      const totalPixels = imgWidth * imgHeight
       $image.innerHTML = `<img src="${image.pixels.image.src}">
+  <span class="image-specs">${t('widget.imageSpecs', imgWidth, imgHeight, totalPixels)}</span>
   <button class="up" title="上移" ${index === 0 ? 'disabled' : ''}>▴</button>
   <button class="down" title="下移" ${index === this.bot.images.length - 1 ? 'disabled' : ''}>▾</button>`
       $image

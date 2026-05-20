@@ -87,7 +87,16 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: 64px;
+  min-height: 64px;
+  flex-wrap: wrap;
+}
+
+.wwidget .images .image .image-specs {
+  font-size: 10px;
+  white-space: nowrap;
+  margin: 0 4px;
+  color: var(--text);
+  opacity: 0.85;
 }
 
 .wwidget .images .image img {

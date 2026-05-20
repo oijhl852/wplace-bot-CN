@@ -23,6 +23,7 @@ const locales: Record<string, Record<string, string | Function>> = {
     'widget.status.unfocus': 'Unfocus window',
     'widget.status.waiting': (name: string) => `Waiting ${name}`,
     'widget.status.addImage': 'Adding image',
+    'widget.imageSpecs': (w: number, h: number, total: number) => `${w}×${h} (${total}px)`,
     'widget.langToggle': 'EN/中',
 
     // ── Image panel ──
@@ -84,6 +85,7 @@ const locales: Record<string, Record<string, string | Function>> = {
     'widget.status.unfocus': '取消聚焦窗口',
     'widget.status.waiting': (name: string) => `等待 ${name}`,
     'widget.status.addImage': '添加图片中',
+    'widget.imageSpecs': (w: number, h: number, total: number) => `${w}×${h}（${total} 像素）`,
     'widget.langToggle': '中/EN',
 
     'image.opacity': '不透明度',
