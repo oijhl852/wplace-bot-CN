@@ -1,15 +1,16 @@
 <button class="wopen-button"><div>></div></button>
-<div class="title">wplace-bot-CN</div>
+<div class="title" data-i18n="widget.title">wplace-bot</div>
 <div class="wform">
   <div class="wprogress"><div></div><span></span></div>
   <div class="wp wstatus"></div>
-  <button class="draw" disabled>绘制</button>
-  <label>策略:&nbsp;<select class="strategy">
-    <option value="SEQUENTIAL" selected>顺序</option>
-    <option value="ALL">全部</option>
-    <option value="PERCENTAGE">百分比</option>
+  <button class="draw" disabled data-i18n="widget.draw">Draw</button>
+  <label><span data-i18n="widget.strategy"></span>:&nbsp;<select class="strategy">
+    <option value="SEQUENTIAL" selected data-i18n="widget.strategy.sequential">Sequential</option>
+    <option value="ALL" data-i18n="widget.strategy.all">All</option>
+    <option value="PERCENTAGE" data-i18n="widget.strategy.percentage">Percentage</option>
   </select></label>
   <div class="images"></div>
-  <!-- <button class="pumpkin-hunt" disabled>南瓜狩猎！</button> -->
-  <button class="add-image" disabled>添加图片</button>
+  <!-- <button class="pumpkin-hunt" disabled>Pumpkin Hunt!</button> -->
+  <button class="add-image" disabled data-i18n="widget.addImage">Add image</button>
 </div>
+<button class="lang-toggle" data-i18n="widget.langToggle">中/EN</button>

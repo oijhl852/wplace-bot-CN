@@ -1,4 +1,5 @@
 import { WPlaceBot } from './bot'
+import { t } from './i18n'
 
 export class WPlaceBotError extends Error {
   public name = 'WPlaceBotError'
@@ -11,13 +12,13 @@ export class WPlaceBotError extends Error {
 export class NotInitializedError extends WPlaceBotError {
   public name = 'NotInitializedError'
   public constructor(bot: WPlaceBot) {
-    super('❌ 未初始化', bot)
+    super(t('error.notInitialized'), bot)
   }
 }
 
 export class NoImageError extends WPlaceBotError {
   public name = 'NoImageError'
   public constructor(bot: WPlaceBot) {
-    super('❌ 未选择图片', bot)
+    super(t('error.noImage'), bot)
   }
 }

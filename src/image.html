@@ -1,52 +1,49 @@
 <div class="wtopbar">
-  <button class="hide">👁</button>
-  <button class="export">📤</button>
-  <button class="lock">🔓</button>
-  <button class="delete">❌</button>
+  <button class="hide" data-i18n-title="image.hide">👁</button>
+  <button class="export" data-i18n-title="image.export">📤</button>
+  <button class="lock" data-i18n-title="image.lock">🔓</button>
+  <button class="delete" data-i18n-title="image.delete">❌</button>
 </div>
 <div class="wrapper">
   <div class="wform">
-    <div class="wprogress">
-      <div></div>
-      <span></span>
-    </div>
+    <div class="wprogress"><div></div><span></span></div>
     <div class="colors"></div>
-    <label>不透明度:&nbsp;<input class="opacity" type="range" min="0" max="100"/></label>
-    <label>亮度:&nbsp;<input class="brightness" type="number" step="0.1"/></label>
+    <label><span data-i18n="image.opacity"></span>:&nbsp;<input class="opacity" type="range" min="0" max="100"/></label>
+    <label><span data-i18n="image.brightness"></span>:&nbsp;<input class="brightness" type="number" step="0.1"/></label>
     <label>
-      策略:&nbsp;<select class="strategy">
-        <option value="RANDOM" selected>随机</option>
-        <option value="DOWN">向下</option>
-        <option value="UP">向上</option>
-        <option value="LEFT">向左</option>
-        <option value="RIGHT">向右</option>
-        <option value="SPIRAL_FROM_CENTER">向外螺旋</option>
-        <option value="SPIRAL_TO_CENTER">向内螺旋</option>
+      <span data-i18n="image.strategy"></span>:&nbsp;<select class="strategy">
+        <option value="RANDOM" selected data-i18n="image.strategy.random">Random</option>
+        <option value="DOWN" data-i18n="image.strategy.down">Down</option>
+        <option value="UP" data-i18n="image.strategy.up">Up</option>
+        <option value="LEFT" data-i18n="image.strategy.left">Left</option>
+        <option value="RIGHT" data-i18n="image.strategy.right">Right</option>
+        <option value="SPIRAL_FROM_CENTER" data-i18n="image.strategy.spiralOut">Spiral out</option>
+        <option value="SPIRAL_TO_CENTER" data-i18n="image.strategy.spiralIn">Spiral in</option>
       </select>
     </label>
-    <button class="reset-size">重置大小 [<span></span>像素]</button>
-    <label class="coord-label"><span class="coord-icon">📍</span>坐标: <span class="coords"></span></label>
+    <button class="reset-size"><span data-i18n="image.resetSize"></span> [<span></span> <span data-i18n="image.pixels"></span>]</button>
+    <label class="coord-label"><span class="coord-icon">📍</span> <span data-i18n="image.coord"></span>: <span class="coords"></span></label>
     <div class="crop-section">
       <div class="crop-line">
-        <button class="crop-left">←</button>
-        <button class="crop-right">→</button>
-        <button class="crop-up">↑</button>
-        <button class="crop-down">↓</button>
-        <span class="crop-hint">裁切</span>
+        <button class="crop-left" data-i18n="image.crop.left">←</button>
+        <button class="crop-right" data-i18n="image.crop.right">→</button>
+        <button class="crop-up" data-i18n="image.crop.top">↑</button>
+        <button class="crop-down" data-i18n="image.crop.bottom">↓</button>
+        <span class="crop-hint" data-i18n="image.crop">Crop</span>
       </div>
       <div class="crop-line">
-        <input class="crop-input" id="cropL" type="number" min="0" value="0" placeholder="左">
-        <input class="crop-input" id="cropR" type="number" min="0" value="0" placeholder="右">
-        <input class="crop-input" id="cropT" type="number" min="0" value="0" placeholder="上">
-        <input class="crop-input" id="cropB" type="number" min="0" value="0" placeholder="下">
-        <button class="crop-apply">执行</button>
+        <input class="crop-input" id="cropL" type="number" min="0" value="0" data-i18n-placeholder="image.crop.left"/>
+        <input class="crop-input" id="cropR" type="number" min="0" value="0" data-i18n-placeholder="image.crop.right"/>
+        <input class="crop-input" id="cropT" type="number" min="0" value="0" data-i18n-placeholder="image.crop.top"/>
+        <input class="crop-input" id="cropB" type="number" min="0" value="0" data-i18n-placeholder="image.crop.bottom"/>
+        <button class="crop-apply" data-i18n="image.crop.apply">Apply</button>
       </div>
     </div>
     <label>
-      <input type="checkbox" class="draw-transparent" />&nbsp;擦除透明像素
+      <input type="checkbox" class="draw-transparent"/>&nbsp;<span data-i18n="image.drawTransparent"></span>
     </label>
     <label>
-      <input type="checkbox" class="draw-colors-in-order" />&nbsp;按顺序绘制颜色
+      <input type="checkbox" class="draw-colors-in-order"/>&nbsp;<span data-i18n="image.drawColorsInOrder"></span>
     </label>
   </div>
   <div class="resize n"></div>

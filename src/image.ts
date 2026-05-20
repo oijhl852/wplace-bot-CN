@@ -8,6 +8,7 @@ import html from './image.html' with { type: 'text' }
 import { Pixels } from './pixels'
 import { save } from './save'
 import { Position, WorldPosition } from './world-position'
+import { t } from './i18n'
 
 export type DrawTask = {
   position: WorldPosition
@@ -337,7 +338,8 @@ export class BotImage extends Base {
     const maxTasks = this.pixels.pixels.length * this.pixels.pixels[0]!.length
     const doneTasks = maxTasks - this.tasks.length
     const percent = ((doneTasks / maxTasks) * 100) | 0
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${(this.tasks.length / 120) | 0}小时`
+    const hours = ((this.tasks.length / 120) | 0)
+    this.$progressText.textContent = t('image.progress', doneTasks, maxTasks, percent, hours)
     this.$progressLine.style.transform = `scaleX(${percent}%)`
     this.$wrapper.classList[this.lock ? 'add' : 'remove']('no-pointer-events')
     this.element.classList[this.lock ? 'add' : 'remove']('locked')

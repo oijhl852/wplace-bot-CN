@@ -9,6 +9,7 @@ import { save } from './save'
 // @ts-ignore
 import html from './widget.html' with { type: 'text' }
 import { WorldPosition } from './world-position'
+import { t, toggleLang, translateElement } from './i18n'
 
 export enum BotStrategy {
   ALL = 'ALL',
@@ -54,6 +55,7 @@ export class Widget extends Base {
     super()
     this.element.classList.add('wwidget')
     this.element.innerHTML = html as unknown as string
+    translateElement(this.element)
     document.body.append(this.element)
 
     this.populateElementsWithSelector(this.element, {
@@ -80,6 +82,10 @@ export class Widget extends Base {
       this.bot.strategy = this.$strategy.value as BotStrategy
     })
 
+    // Language toggle
+    this.element.querySelector<HTMLButtonElement>('.lang-toggle')!
+      .addEventListener('click', () => toggleLang())
+
     this.update()
     this.open = true
   }
@@ -88,7 +94,7 @@ export class Widget extends Base {
   public addImage() {
     this.setDisabled('add-image', true)
     return this.run(
-      '添加图片中',
+      t('widget.status.addImage'),
       async () => {
         await this.bot.updateColors()
         const input = document.createElement('input')
@@ -145,7 +151,8 @@ export class Widget extends Base {
     }
     const doneTasks = maxTasks - totalTasks
     const percent = ((doneTasks / maxTasks) * 100) | 0
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${(totalTasks / 120) | 0}小时`
+    const hours = ((totalTasks / 120) | 0)
+    this.$progressText.textContent = t('widget.progress', doneTasks, maxTasks, percent, hours)
     this.$progressLine.style.transform = `scaleX(${percent}%)`
 
     // Images

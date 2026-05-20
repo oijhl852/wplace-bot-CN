@@ -6,6 +6,7 @@ import { loadSave } from './save'
 // @ts-ignore
 import css from './style.css' with { type: 'text' }
 import { BotStrategy, Widget } from './widget'
+import { t } from './i18n'
 import {
   addFavoriteLocation,
   extractScreenPositionFromStar,
@@ -112,15 +113,15 @@ export class WPlaceBot {
     )
     document.head.append(style)
 
-    void this.widget.run('初始化中', async () => {
+    void this.widget.run(t('widget.status.initializing'), async () => {
       // 等待 all of website to load
-      await this.waitForElement('登录', '.avatar.center-absolute.absolute')
+      await this.waitForElement('wait.login', '.avatar.center-absolute.absolute')
       await this.waitForElement(
-        'pixel count',
+        'wait.pixelCount',
         '.btn.btn-primary.btn-lg.relative.z-30 canvas',
       )
       const $canvasContainer = await this.waitForElement(
-        'canvas',
+        'wait.canvas',
         '.maplibregl-canvas-container',
       )
       new MutationObserver((mutations: MutationRecord[]) => {
@@ -168,9 +169,9 @@ export class WPlaceBot {
       if (!event.shiftKey) event.stopPropagation()
     }
     return this.widget.run(
-      '绘制中',
+      t('widget.status.drawing'),
       async () => {
-        await this.widget.run('初始化绘制', () =>
+        await this.widget.run(t('widget.status.initDraw'), () =>
           Promise.all([this.updateColors(), this.readMap()]),
         )
         // Stop mouse messing with drawing by capturing event
@@ -323,7 +324,7 @@ export class WPlaceBot {
           imagesToDownload.add(`${tileX}/${tileY}`)
     }
     let done = 0
-    return this.widget.run(`读取地图 [0/${imagesToDownload.size}]`, () =>
+    return this.widget.run(t('widget.status.readMap', 0, imagesToDownload.size), () =>
       Promise.all(
         [...imagesToDownload].map(async (x) => {
           this.mapsCache.set(
@@ -333,7 +334,7 @@ export class WPlaceBot {
               exactColor: true,
             }),
           )
-          this.widget.status = `⌛ 读取地图 [${++done}/${imagesToDownload.size}]`
+          this.widget.status = t('widget.status.readMap', ++done, imagesToDownload.size)
         }),
       ),
     )
@@ -342,7 +343,7 @@ export class WPlaceBot {
   /** Wait until window is unfocused */
   public waitForUnfocus() {
     return this.widget.run(
-      '取消聚焦窗口',
+      t('widget.status.unfocus'),
       () =>
         new Promise<void>((resolve) => {
           if (!document.hasFocus()) resolve()
@@ -519,10 +520,11 @@ export class WPlaceBot {
 
   /** Wait for element to show up in document */
   protected waitForElement<T extends Element>(
-    name: string,
+    nameKey: string,
     selector: string,
   ): Promise<T> {
-    return this.widget.run(`等待 ${name}`, () => {
+    const displayName = t(nameKey)
+    return this.widget.run(t('widget.status.waiting', displayName), () => {
       return new Promise<T>((resolve) => {
         // If element already exists, resolve immediately
         const existing = document.querySelector<T>(selector)

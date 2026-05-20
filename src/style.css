@@ -8,7 +8,7 @@
   --text-invert: #fff;
   --error: #f00;
   --resize: 8px;
-  --asdadsasdasdasdasdasdasdasd: 1px;
+  --asdadsasdasdasdasdasd: 1px;
   --text: #422e2c;
   --background: #fbe3cb;
   --background-hover: #f0d1b3;
@@ -37,6 +37,8 @@
   font-family: 'Tiny5', sans-serif;
   transition: transform 0.5s;
   transform: translateX(-100%);
+  display: flex;
+  flex-direction: column;
 }
 
 .wwidget .title {
@@ -44,6 +46,7 @@
   background-color: var(--main);
   font-size: 32px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .wwidget.wopen .wopen-button div {
@@ -70,6 +73,7 @@
   background-color: var(--background);
   color: var(--text);
   cursor: pointer;
+  z-index: 10;
 }
 
 .wwidget .images {
@@ -268,6 +272,10 @@
   filter: brightness(0.6);
 }
 
+.wform .colors > button.substitution:hover {
+  filter: none;
+}
+
 .wform .colors > button.substitution button:first-child {
   background: var(--wreal-color);
   text-align: left;
@@ -278,10 +286,6 @@
   background: var(--wsubstitution-color);
   text-align: right;
   clip-path: polygon(100% 100%, 100% 0, 80% 0, 20% 100%);
-}
-
-.wform .colors > button.substitution:hover {
-  filter: none;
 }
 
 .wform .colors:hover > button {
@@ -429,4 +433,21 @@
 .no-pointer-events {
   height: 1px;
   pointer-events: none;
+}
+
+/* Language toggle – bottom-left of widget */
+.wwidget .lang-toggle {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin: 4px;
+  padding: 2px 10px;
+  border: var(--text) 1px solid;
+  background: var(--background);
+  color: var(--text);
+  font-family: 'Tiny5', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+}
+.wwidget .lang-toggle:hover {
+  background: var(--background-hover);
 }
