@@ -91,6 +91,7 @@ export class BotImage extends Base {
   protected readonly $cropR!: HTMLInputElement
   protected readonly $cropT!: HTMLInputElement
   protected readonly $cropB!: HTMLInputElement
+  protected readonly $undo!: HTMLButtonElement
   protected readonly $wrapper!: HTMLDivElement
 
   public constructor(
@@ -146,6 +147,7 @@ export class BotImage extends Base {
       $cropR: '#cropR',
       $cropT: '#cropT',
       $cropB: '#cropB',
+      $undo: '.undo',
     })
     this.$resetSizeSpan =
       this.$resetSize.querySelector<HTMLSpanElement>('span')!
@@ -221,6 +223,14 @@ export class BotImage extends Base {
     })
 
     this.registerEvent(this.$delete, 'click', this.destroy.bind(this))
+
+    // Undo
+    this.registerEvent(this.$undo, 'click', () => {
+      if (!this.pixels.undo()) return
+      this.updateColors()
+      this.update()
+      save(this.bot)
+    })
 
     // Crop by 1 pixel
     const doCrop = (left, right, top, bottom) => {
@@ -345,6 +355,7 @@ export class BotImage extends Base {
     this.element.classList[this.lock ? 'add' : 'remove']('locked')
     this.$lock.textContent = this.lock ? '🔒' : '🔓'
     this.$hide.textContent = this.hidden ? '👁‍🗨' : '👁'
+    this.$undo.style.display = this.pixels.canUndo ? '' : 'none'
     this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`
   }
 

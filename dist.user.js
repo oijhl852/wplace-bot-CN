@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.6.0
+// @version      4.6.1
 // @description  在 https://wplace.live 网站上自动绘制的机器人 (支持 EN/中 切换)
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -379,6 +379,7 @@ var image_default = `<div class="wtopbar">\r
   <button class="export" data-i18n-title="image.export">📤</button>\r
   <button class="lock" data-i18n-title="image.lock">🔓</button>\r
   <button class="delete" data-i18n-title="image.delete">❌</button>\r
+  <button class="undo" data-i18n-title="image.undo" style="display:none">↩️</button>\r
 </div>\r
 <div class="wrapper">\r
   <div class="wform">\r
@@ -446,6 +447,10 @@ class Pixels {
   context = this.canvas.getContext("2d");
   pixels;
   colors = new Map;
+  undoStack = [];
+  get canUndo() {
+    return this.undoStack.length > 0;
+  }
   resolution;
   get height() {
     return this.width / this.resolution | 0;
@@ -533,6 +538,29 @@ class Pixels {
       }
     }
   }
+  saveUndoState() {
+    const snapshot = {
+      pixels: this.pixels.map((row) => [...row]),
+      colors: new Map(this.colors),
+      width: this.width,
+      canvasData: this.context.getImageData(0, 0, this.canvas.width, this.canvas.height)
+    };
+    this.undoStack.push(snapshot);
+    if (this.undoStack.length > 5)
+      this.undoStack.shift();
+  }
+  undo() {
+    const snapshot = this.undoStack.pop();
+    if (!snapshot)
+      return false;
+    this.pixels = snapshot.pixels;
+    this.colors = snapshot.colors;
+    this.width = snapshot.width;
+    this.canvas.width = snapshot.pixels[0].length;
+    this.canvas.height = snapshot.pixels.length;
+    this.context.putImageData(snapshot.canvasData, 0, 0);
+    return true;
+  }
   crop(left, right, top, bottom) {
     const newWidth = this.pixels[0].length - left - right;
     const newHeight = this.pixels.length - top - bottom;
@@ -540,6 +568,7 @@ class Pixels {
       return;
     if (left < 0 || right < 0 || top < 0 || bottom < 0)
       return;
+    this.saveUndoState();
     this.pixels = this.pixels.slice(top, top + newHeight).map((row) => row.slice(left, left + newWidth));
     this.colors.clear();
     for (const row of this.pixels)
@@ -794,6 +823,7 @@ var locales = {
     "image.export": "Export",
     "image.lock": "Lock / Unlock",
     "image.delete": "Delete",
+    "image.undo": "Undo crop",
     "wait.login": "login",
     "wait.pixelCount": "pixel count",
     "wait.canvas": "canvas"
@@ -843,6 +873,7 @@ var locales = {
     "image.export": "导出",
     "image.lock": "锁定 / 解锁",
     "image.delete": "删除",
+    "image.undo": "撤销裁剪",
     "wait.login": "登录",
     "wait.pixelCount": "pixel count",
     "wait.canvas": "画布"
@@ -966,6 +997,7 @@ class BotImage extends Base2 {
   $cropR;
   $cropT;
   $cropB;
+  $undo;
   $wrapper;
   constructor(bot, position, pixels, strategy = "SPIRAL_FROM_CENTER" /* SPIRAL_FROM_CENTER */, opacity = 50, drawTransparentPixels = false, drawColorsInOrder = false, colors = [], lock = false, hidden = false) {
     super();
@@ -1008,7 +1040,8 @@ class BotImage extends Base2 {
       $cropL: "#cropL",
       $cropR: "#cropR",
       $cropT: "#cropT",
-      $cropB: "#cropB"
+      $cropB: "#cropB",
+      $undo: ".undo"
     });
     this.$resetSizeSpan = this.$resetSize.querySelector("span");
     this.$canvas = this.pixels.canvas;
@@ -1065,6 +1098,13 @@ class BotImage extends Base2 {
       save(this.bot);
     });
     this.registerEvent(this.$delete, "click", this.destroy.bind(this));
+    this.registerEvent(this.$undo, "click", () => {
+      if (!this.pixels.undo())
+        return;
+      this.updateColors();
+      this.update();
+      save(this.bot);
+    });
     const doCrop = (left, right, top, bottom) => {
       if (this.lock)
         return;
@@ -1175,6 +1215,7 @@ class BotImage extends Base2 {
     this.element.classList[this.lock ? "add" : "remove"]("locked");
     this.$lock.textContent = this.lock ? "\uD83D\uDD12" : "\uD83D\uDD13";
     this.$hide.textContent = this.hidden ? "\uD83D\uDC41‍\uD83D\uDDE8" : "\uD83D\uDC41";
+    this.$undo.style.display = this.pixels.canUndo ? "" : "none";
     this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`;
   }
   destroy() {
@@ -1885,6 +1926,14 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   cursor: pointer;\r
 }\r
 .wwidget .lang-toggle:hover {\r
+  background: var(--background-hover);\r
+}\r
+\r
+/* Undo button – shown via JS display, styled here */\r
+.wtopbar .undo {\r
+  font-size: 14px;\r
+}\r
+.wtopbar .undo:hover {\r
   background: var(--background-hover);\r
 }\r
 `;

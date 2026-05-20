@@ -59,6 +59,7 @@ const locales: Record<string, Record<string, string | Function>> = {
     'image.export': 'Export',
     'image.lock': 'Lock / Unlock',
     'image.delete': 'Delete',
+    'image.undo': 'Undo crop',
 
     // ── WaitForElement ──
     'wait.login': 'login',
@@ -116,6 +117,7 @@ const locales: Record<string, Record<string, string | Function>> = {
     'image.export': '导出',
     'image.lock': '锁定 / 解锁',
     'image.delete': '删除',
+    'image.undo': '撤销裁剪',
 
     'wait.login': '登录',
     'wait.pixelCount': 'pixel count',

@@ -451,3 +451,11 @@
 .wwidget .lang-toggle:hover {
   background: var(--background-hover);
 }
+
+/* Undo button – shown via JS display, styled here */
+.wtopbar .undo {
+  font-size: 14px;
+}
+.wtopbar .undo:hover {
+  background: var(--background-hover);
+}

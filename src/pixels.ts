@@ -34,6 +34,19 @@ export class Pixels {
   /** Used colors */
   public readonly colors = new Map<number, PixelColorStat>()
 
+  /** Undo stack – stores snapshots of previous states (max 5 entries) */
+  protected undoStack: Array<{
+    pixels: number[][]
+    colors: Map<number, PixelColorStat>
+    width: number
+    canvasData: ImageData
+  }> = []
+
+  /** Whether undo is available */
+  public get canUndo(): boolean {
+    return this.undoStack.length > 0
+  }
+
   public readonly resolution: number
 
   public get height() {
@@ -161,12 +174,40 @@ export class Pixels {
     }
   }
 
+  /** Save current state to undo stack (called before destructive ops) */
+  public saveUndoState() {
+    const snapshot = {
+      pixels: this.pixels.map(row => [...row]),
+      colors: new Map(this.colors),
+      width: this.width,
+      canvasData: this.context.getImageData(0, 0, this.canvas.width, this.canvas.height),
+    }
+    this.undoStack.push(snapshot)
+    if (this.undoStack.length > 5) this.undoStack.shift() // cap at 5
+  }
+
+  /** Restore the last saved state. Returns true if restored. */
+  public undo(): boolean {
+    const snapshot = this.undoStack.pop()
+    if (!snapshot) return false
+    this.pixels = snapshot.pixels
+    this.colors = snapshot.colors
+    this.width = snapshot.width
+    this.canvas.width = snapshot.pixels[0]!.length
+    this.canvas.height = snapshot.pixels.length
+    this.context.putImageData(snapshot.canvasData, 0, 0)
+    return true
+  }
+
   /** Crop pixels from edges */
   public crop(left: number, right: number, top: number, bottom: number) {
     const newWidth = this.pixels[0]!.length - left - right
     const newHeight = this.pixels.length - top - bottom
     if (newWidth <= 0 || newHeight <= 0) return
     if (left < 0 || right < 0 || top < 0 || bottom < 0) return
+
+    // Save state for undo
+    this.saveUndoState()
 
     // Slice pixels array
     this.pixels = this.pixels.slice(top, top + newHeight).map(row => row.slice(left, left + newWidth))
