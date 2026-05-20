@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.6.2
+// @version      4.6.3
 // @description  在 https://wplace.live 网站上自动绘制的机器人 (支持 EN/中 切换)
 // @author       SoundOfTheSky
 // @license      MPL-2.0

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.6.1
+// @version      4.6.2
 // @description  在 https://wplace.live 网站上自动绘制的机器人 (支持 EN/中 切换)
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -1079,6 +1079,7 @@ class BotImage extends Base2 {
       this.pixels.update();
       this.updateColors();
       this.update();
+      this.bot.widget.update();
       save(this.bot);
     });
     this.registerEvent(this.$drawTransparent, "click", () => {
@@ -1105,6 +1106,7 @@ class BotImage extends Base2 {
         return;
       this.updateColors();
       this.update();
+      this.bot.widget.update();
       save(this.bot);
     });
     const doCrop = (left, right, top, bottom) => {
@@ -1115,6 +1117,7 @@ class BotImage extends Base2 {
       this.pixels.crop(left, right, top, bottom);
       this.updateColors();
       this.update();
+      this.bot.widget.update();
       save(this.bot);
     };
     this.registerEvent(this.$cropLeft, "click", () => doCrop(1, 0, 0, 0));
@@ -1135,6 +1138,7 @@ class BotImage extends Base2 {
       this.pixels.crop(left, right, top, bottom);
       this.updateColors();
       this.update();
+      this.bot.widget.update();
       save(this.bot);
       this.$cropL.value = "0";
       this.$cropR.value = "0";
@@ -1420,6 +1424,7 @@ class BotImage extends Base2 {
       this.position.updateAnchor();
       this.pixels.update();
       this.updateColors();
+      this.bot.widget.update();
     }
   }
   move(event) {

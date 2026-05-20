@@ -193,6 +193,7 @@ export class BotImage extends Base {
       this.pixels.update()
       this.updateColors()
       this.update()
+      this.bot.widget.update()
       save(this.bot)
     })
 
@@ -229,6 +230,7 @@ export class BotImage extends Base {
       if (!this.pixels.undo()) return
       this.updateColors()
       this.update()
+      this.bot.widget.update()
       save(this.bot)
     })
 
@@ -240,6 +242,7 @@ export class BotImage extends Base {
       this.pixels.crop(left, right, top, bottom)
       this.updateColors()
       this.update()
+      this.bot.widget.update()
       save(this.bot)
     }
     this.registerEvent(this.$cropLeft, 'click', () => doCrop(1, 0, 0, 0))
@@ -257,6 +260,7 @@ export class BotImage extends Base {
       this.pixels.crop(left, right, top, bottom)
       this.updateColors()
       this.update()
+      this.bot.widget.update()
       save(this.bot)
       this.$cropL.value = '0'
       this.$cropR.value = '0'
@@ -585,6 +589,7 @@ export class BotImage extends Base {
       this.position.updateAnchor()
       this.pixels.update()
       this.updateColors()
+      this.bot.widget.update()
     }
   }
 
