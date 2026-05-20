@@ -326,7 +326,7 @@ export class BotImage extends Base {
     this.$canvas.style.opacity = `${this.opacity}%`
     this.$canvas.style.display = this.hidden ? 'none' : ''
     this.$wrapper.style.display = this.hidden ? 'none' : ''
-    this.element.style.zIndex = String(999 - this.bot.images.indexOf(this))
+    this.element.style.zIndex = String(9 + this.bot.images.length - this.bot.images.indexOf(this))
 
     this.$resetSizeSpan.textContent = this.pixels.width.toString()
     this.$brightness.valueAsNumber = this.pixels.brightness
@@ -340,6 +340,7 @@ export class BotImage extends Base {
     this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${(this.tasks.length / 120) | 0}小时`
     this.$progressLine.style.transform = `scaleX(${percent}%)`
     this.$wrapper.classList[this.lock ? 'add' : 'remove']('no-pointer-events')
+    this.element.classList[this.lock ? 'add' : 'remove']('locked')
     this.$lock.textContent = this.lock ? '🔒' : '🔓'
     this.$hide.textContent = this.hidden ? '👁‍🗨' : '👁'
     this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`

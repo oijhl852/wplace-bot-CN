@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.5.5
+// @version      4.5.6
 // @description  在 https://wplace.live 网站上自动绘制的机器人
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -987,7 +987,7 @@ class BotImage extends Base2 {
     this.$canvas.style.opacity = `${this.opacity}%`;
     this.$canvas.style.display = this.hidden ? "none" : "";
     this.$wrapper.style.display = this.hidden ? "none" : "";
-    this.element.style.zIndex = String(999 - this.bot.images.indexOf(this));
+    this.element.style.zIndex = String(9 + this.bot.images.length - this.bot.images.indexOf(this));
     this.$resetSizeSpan.textContent = this.pixels.width.toString();
     this.$brightness.valueAsNumber = this.pixels.brightness;
     this.$strategy.value = this.strategy;
@@ -1000,6 +1000,7 @@ class BotImage extends Base2 {
     this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${this.tasks.length / 120 | 0}小时`;
     this.$progressLine.style.transform = `scaleX(${percent}%)`;
     this.$wrapper.classList[this.lock ? "add" : "remove"]("no-pointer-events");
+    this.element.classList[this.lock ? "add" : "remove"]("locked");
     this.$lock.textContent = this.lock ? "\uD83D\uDD12" : "\uD83D\uDD13";
     this.$hide.textContent = this.hidden ? "\uD83D\uDC41‍\uD83D\uDDE8" : "\uD83D\uDC41";
     this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`;
@@ -1368,7 +1369,10 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   position: fixed;\r
   top: 0;\r
   left: 0;\r
-  z-index: 9;\r
+}\r
+\r
+.wimage.locked:hover .wform {\r
+  display: none !important;\r
 }\r
 \r
 .wimage canvas {\r
