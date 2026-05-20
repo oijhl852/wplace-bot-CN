@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.5.6
-// @description  在 https://wplace.live 网站上自动绘制的机器人
+// @version      4.6.0
+// @description  在 https://wplace.live 网站上自动绘制的机器人 (支持 EN/中 切换)
 // @author       SoundOfTheSky
 // @license      MPL-2.0
 // @homepageURL  https://github.com/oijhl852/wplace-bot-CN
@@ -375,54 +375,51 @@ function colorToCSS(colorId) {
 
 // src/image.html
 var image_default = `<div class="wtopbar">\r
-  <button class="hide">👁</button>\r
-  <button class="export">📤</button>\r
-  <button class="lock">🔓</button>\r
-  <button class="delete">❌</button>\r
+  <button class="hide" data-i18n-title="image.hide">👁</button>\r
+  <button class="export" data-i18n-title="image.export">📤</button>\r
+  <button class="lock" data-i18n-title="image.lock">🔓</button>\r
+  <button class="delete" data-i18n-title="image.delete">❌</button>\r
 </div>\r
 <div class="wrapper">\r
   <div class="wform">\r
-    <div class="wprogress">\r
-      <div></div>\r
-      <span></span>\r
-    </div>\r
+    <div class="wprogress"><div></div><span></span></div>\r
     <div class="colors"></div>\r
-    <label>不透明度:&nbsp;<input class="opacity" type="range" min="0" max="100"/></label>\r
-    <label>亮度:&nbsp;<input class="brightness" type="number" step="0.1"/></label>\r
+    <label><span data-i18n="image.opacity"></span>:&nbsp;<input class="opacity" type="range" min="0" max="100"/></label>\r
+    <label><span data-i18n="image.brightness"></span>:&nbsp;<input class="brightness" type="number" step="0.1"/></label>\r
     <label>\r
-      策略:&nbsp;<select class="strategy">\r
-        <option value="RANDOM" selected>随机</option>\r
-        <option value="DOWN">向下</option>\r
-        <option value="UP">向上</option>\r
-        <option value="LEFT">向左</option>\r
-        <option value="RIGHT">向右</option>\r
-        <option value="SPIRAL_FROM_CENTER">向外螺旋</option>\r
-        <option value="SPIRAL_TO_CENTER">向内螺旋</option>\r
+      <span data-i18n="image.strategy"></span>:&nbsp;<select class="strategy">\r
+        <option value="RANDOM" selected data-i18n="image.strategy.random">Random</option>\r
+        <option value="DOWN" data-i18n="image.strategy.down">Down</option>\r
+        <option value="UP" data-i18n="image.strategy.up">Up</option>\r
+        <option value="LEFT" data-i18n="image.strategy.left">Left</option>\r
+        <option value="RIGHT" data-i18n="image.strategy.right">Right</option>\r
+        <option value="SPIRAL_FROM_CENTER" data-i18n="image.strategy.spiralOut">Spiral out</option>\r
+        <option value="SPIRAL_TO_CENTER" data-i18n="image.strategy.spiralIn">Spiral in</option>\r
       </select>\r
     </label>\r
-    <button class="reset-size">重置大小 [<span></span>像素]</button>\r
-    <label class="coord-label"><span class="coord-icon">📍</span>坐标: <span class="coords"></span></label>\r
+    <button class="reset-size"><span data-i18n="image.resetSize"></span> [<span></span> <span data-i18n="image.pixels"></span>]</button>\r
+    <label class="coord-label"><span class="coord-icon">📍</span> <span data-i18n="image.coord"></span>: <span class="coords"></span></label>\r
     <div class="crop-section">\r
       <div class="crop-line">\r
-        <button class="crop-left">←</button>\r
-        <button class="crop-right">→</button>\r
-        <button class="crop-up">↑</button>\r
-        <button class="crop-down">↓</button>\r
-        <span class="crop-hint">裁切</span>\r
+        <button class="crop-left" data-i18n="image.crop.left">←</button>\r
+        <button class="crop-right" data-i18n="image.crop.right">→</button>\r
+        <button class="crop-up" data-i18n="image.crop.top">↑</button>\r
+        <button class="crop-down" data-i18n="image.crop.bottom">↓</button>\r
+        <span class="crop-hint" data-i18n="image.crop">Crop</span>\r
       </div>\r
       <div class="crop-line">\r
-        <input class="crop-input" id="cropL" type="number" min="0" value="0" placeholder="左">\r
-        <input class="crop-input" id="cropR" type="number" min="0" value="0" placeholder="右">\r
-        <input class="crop-input" id="cropT" type="number" min="0" value="0" placeholder="上">\r
-        <input class="crop-input" id="cropB" type="number" min="0" value="0" placeholder="下">\r
-        <button class="crop-apply">执行</button>\r
+        <input class="crop-input" id="cropL" type="number" min="0" value="0" data-i18n-placeholder="image.crop.left"/>\r
+        <input class="crop-input" id="cropR" type="number" min="0" value="0" data-i18n-placeholder="image.crop.right"/>\r
+        <input class="crop-input" id="cropT" type="number" min="0" value="0" data-i18n-placeholder="image.crop.top"/>\r
+        <input class="crop-input" id="cropB" type="number" min="0" value="0" data-i18n-placeholder="image.crop.bottom"/>\r
+        <button class="crop-apply" data-i18n="image.crop.apply">Apply</button>\r
       </div>\r
     </div>\r
     <label>\r
-      <input type="checkbox" class="draw-transparent" />&nbsp;擦除透明像素\r
+      <input type="checkbox" class="draw-transparent"/>&nbsp;<span data-i18n="image.drawTransparent"></span>\r
     </label>\r
     <label>\r
-      <input type="checkbox" class="draw-colors-in-order" />&nbsp;按顺序绘制颜色\r
+      <input type="checkbox" class="draw-colors-in-order"/>&nbsp;<span data-i18n="image.drawColorsInOrder"></span>\r
     </label>\r
   </div>\r
   <div class="resize n"></div>\r
@@ -750,6 +747,180 @@ class WorldPosition {
   }
 }
 
+// src/i18n.ts
+var locales = {
+  en: {
+    "widget.title": "wplace-bot",
+    "widget.draw": "Draw",
+    "widget.addImage": "Add image",
+    "widget.strategy": "Strategy",
+    "widget.strategy.sequential": "Sequential",
+    "widget.strategy.all": "All",
+    "widget.strategy.percentage": "Percentage",
+    "widget.progress": (d, t, p, h) => `${d}/${t} ${p}% est: ${h}h`,
+    "widget.status.initializing": "Initializing",
+    "widget.status.drawing": "Drawing",
+    "widget.status.initDraw": "Init draw",
+    "widget.status.readMap": (n, t) => `Read map [${n}/${t}]`,
+    "widget.status.unfocus": "Unfocus window",
+    "widget.status.waiting": (name) => `Waiting ${name}`,
+    "widget.status.addImage": "Adding image",
+    "widget.langToggle": "EN/中",
+    "image.opacity": "Opacity",
+    "image.brightness": "Brightness",
+    "image.strategy": "Strategy",
+    "image.strategy.random": "Random",
+    "image.strategy.down": "Down",
+    "image.strategy.up": "Up",
+    "image.strategy.left": "Left",
+    "image.strategy.right": "Right",
+    "image.strategy.spiralOut": "Spiral out",
+    "image.strategy.spiralIn": "Spiral in",
+    "image.resetSize": "Reset size",
+    "image.pixels": "pixels",
+    "image.coord": "Coord",
+    "image.crop": "Crop",
+    "image.crop.apply": "Apply",
+    "image.crop.left": "L",
+    "image.crop.right": "R",
+    "image.crop.top": "T",
+    "image.crop.bottom": "B",
+    "image.drawTransparent": "Erase transparent pixels",
+    "image.drawColorsInOrder": "Draw colors in order",
+    "image.progress": (d, t, p, h) => `${d}/${t} ${p}% est: ${h}h`,
+    "error.notInitialized": "❌ Not initialized",
+    "error.noImage": "❌ No image selected",
+    "image.hide": "Hide / Show",
+    "image.export": "Export",
+    "image.lock": "Lock / Unlock",
+    "image.delete": "Delete",
+    "wait.login": "login",
+    "wait.pixelCount": "pixel count",
+    "wait.canvas": "canvas"
+  },
+  "zh-CN": {
+    "widget.title": "wplace-bot-CN",
+    "widget.draw": "绘制",
+    "widget.addImage": "添加图片",
+    "widget.strategy": "策略",
+    "widget.strategy.sequential": "顺序",
+    "widget.strategy.all": "全部",
+    "widget.strategy.percentage": "百分比",
+    "widget.progress": (d, t, p, h) => `${d}/${t} ${p}% 预计: ${h}小时`,
+    "widget.status.initializing": "初始化中",
+    "widget.status.drawing": "绘制中",
+    "widget.status.initDraw": "初始化绘制",
+    "widget.status.readMap": (n, t) => `读取地图 [${n}/${t}]`,
+    "widget.status.unfocus": "取消聚焦窗口",
+    "widget.status.waiting": (name) => `等待 ${name}`,
+    "widget.status.addImage": "添加图片中",
+    "widget.langToggle": "中/EN",
+    "image.opacity": "不透明度",
+    "image.brightness": "亮度",
+    "image.strategy": "策略",
+    "image.strategy.random": "随机",
+    "image.strategy.down": "向下",
+    "image.strategy.up": "向上",
+    "image.strategy.left": "向左",
+    "image.strategy.right": "向右",
+    "image.strategy.spiralOut": "向外螺旋",
+    "image.strategy.spiralIn": "向内螺旋",
+    "image.resetSize": "重置大小",
+    "image.pixels": "像素",
+    "image.coord": "坐标",
+    "image.crop": "裁切",
+    "image.crop.apply": "执行",
+    "image.crop.left": "左",
+    "image.crop.right": "右",
+    "image.crop.top": "上",
+    "image.crop.bottom": "下",
+    "image.drawTransparent": "擦除透明像素",
+    "image.drawColorsInOrder": "按顺序绘制颜色",
+    "image.progress": (d, t, p, h) => `${d}/${t} ${p}% 预计: ${h}小时`,
+    "error.notInitialized": "❌ 未初始化",
+    "error.noImage": "❌ 未选择图片",
+    "image.hide": "隐藏 / 显示",
+    "image.export": "导出",
+    "image.lock": "锁定 / 解锁",
+    "image.delete": "删除",
+    "wait.login": "登录",
+    "wait.pixelCount": "pixel count",
+    "wait.canvas": "画布"
+  }
+};
+var STORAGE_KEY = "wbot-lang";
+var currentLang = localStorage.getItem(STORAGE_KEY) ?? detectBrowserLang();
+function detectBrowserLang() {
+  const nav = globalThis.navigator;
+  const lang = nav?.language ?? "";
+  if (lang.startsWith("zh"))
+    return "zh-CN";
+  return "en";
+}
+function t(key, ...args) {
+  const dict = locales[currentLang];
+  if (!dict)
+    return key;
+  const entry = dict[key];
+  if (entry === undefined)
+    return key;
+  if (typeof entry === "function") {
+    return entry(...args);
+  }
+  return entry;
+}
+function toggleLang() {
+  currentLang = currentLang === "en" ? "zh-CN" : "en";
+  localStorage.setItem(STORAGE_KEY, currentLang);
+  refreshAll();
+}
+function translateElement(element) {
+  const dict = locales[currentLang];
+  if (!dict)
+    return;
+  const textNodes = element.querySelectorAll("[data-i18n]");
+  for (const el of textNodes) {
+    const key = el.getAttribute("data-i18n");
+    if (!key)
+      continue;
+    const entry = dict[key];
+    if (entry === undefined || typeof entry === "function")
+      continue;
+    el.textContent = entry;
+  }
+  const titleNodes = element.querySelectorAll("[data-i18n-title]");
+  for (const el of titleNodes) {
+    const key = el.getAttribute("data-i18n-title");
+    if (!key)
+      continue;
+    const entry = dict[key];
+    if (entry === undefined || typeof entry === "function")
+      continue;
+    el.title = entry;
+  }
+  const placeholderNodes = element.querySelectorAll("[data-i18n-placeholder]");
+  for (const el of placeholderNodes) {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (!key)
+      continue;
+    const entry = dict[key];
+    if (entry === undefined || typeof entry === "function")
+      continue;
+    el.placeholder = entry;
+  }
+}
+function refreshAll() {
+  const wbot = globalThis.wbot;
+  if (!wbot)
+    return;
+  translateElement(wbot.widget.element);
+  wbot.widget.update();
+  for (const img of wbot.images) {
+    translateElement(img.element);
+    img.update();
+  }
+}
+
 // src/image.ts
 class BotImage extends Base2 {
   bot;
@@ -997,7 +1168,8 @@ class BotImage extends Base2 {
     const maxTasks = this.pixels.pixels.length * this.pixels.pixels[0].length;
     const doneTasks = maxTasks - this.tasks.length;
     const percent = doneTasks / maxTasks * 100 | 0;
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${this.tasks.length / 120 | 0}小时`;
+    const hours = this.tasks.length / 120 | 0;
+    this.$progressText.textContent = t("image.progress", doneTasks, maxTasks, percent, hours);
     this.$progressLine.style.transform = `scaleX(${percent}%)`;
     this.$wrapper.classList[this.lock ? "add" : "remove"]("no-pointer-events");
     this.element.classList[this.lock ? "add" : "remove"]("locked");
@@ -1272,7 +1444,7 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   --text-invert: #fff;\r
   --error: #f00;\r
   --resize: 8px;\r
-  --asdadsasdasdasdasdasdasdasd: 1px;\r
+  --asdadsasdasdasdasdasd: 1px;\r
   --text: #422e2c;\r
   --background: #fbe3cb;\r
   --background-hover: #f0d1b3;\r
@@ -1301,6 +1473,8 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   font-family: 'Tiny5', sans-serif;\r
   transition: transform 0.5s;\r
   transform: translateX(-100%);\r
+  display: flex;\r
+  flex-direction: column;\r
 }\r
 \r
 .wwidget .title {\r
@@ -1308,6 +1482,7 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   background-color: var(--main);\r
   font-size: 32px;\r
   text-align: center;\r
+  flex-shrink: 0;\r
 }\r
 \r
 .wwidget.wopen .wopen-button div {\r
@@ -1334,6 +1509,7 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   background-color: var(--background);\r
   color: var(--text);\r
   cursor: pointer;\r
+  z-index: 10;\r
 }\r
 \r
 .wwidget .images {\r
@@ -1532,6 +1708,10 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   filter: brightness(0.6);\r
 }\r
 \r
+.wform .colors > button.substitution:hover {\r
+  filter: none;\r
+}\r
+\r
 .wform .colors > button.substitution button:first-child {\r
   background: var(--wreal-color);\r
   text-align: left;\r
@@ -1542,10 +1722,6 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   background: var(--wsubstitution-color);\r
   text-align: right;\r
   clip-path: polygon(100% 100%, 100% 0, 80% 0, 20% 100%);\r
-}\r
-\r
-.wform .colors > button.substitution:hover {\r
-  filter: none;\r
 }\r
 \r
 .wform .colors:hover > button {\r
@@ -1694,6 +1870,23 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   height: 1px;\r
   pointer-events: none;\r
 }\r
+\r
+/* Language toggle – bottom-left of widget */\r
+.wwidget .lang-toggle {\r
+  flex-shrink: 0;\r
+  align-self: flex-start;\r
+  margin: 4px;\r
+  padding: 2px 10px;\r
+  border: var(--text) 1px solid;\r
+  background: var(--background);\r
+  color: var(--text);\r
+  font-family: 'Tiny5', sans-serif;\r
+  font-size: 11px;\r
+  cursor: pointer;\r
+}\r
+.wwidget .lang-toggle:hover {\r
+  background: var(--background-hover);\r
+}\r
 `;
 
 // src/errors.ts
@@ -1707,26 +1900,27 @@ class WPlaceBotError extends Error {
 class NoImageError extends WPlaceBotError {
   name = "NoImageError";
   constructor(bot) {
-    super("❌ 未选择图片", bot);
+    super(t("error.noImage"), bot);
   }
 }
 
 // src/widget.html
 var widget_default = `<button class="wopen-button"><div>></div></button>\r
-<div class="title">wplace-bot-CN</div>\r
+<div class="title" data-i18n="widget.title">wplace-bot</div>\r
 <div class="wform">\r
   <div class="wprogress"><div></div><span></span></div>\r
   <div class="wp wstatus"></div>\r
-  <button class="draw" disabled>绘制</button>\r
-  <label>策略:&nbsp;<select class="strategy">\r
-    <option value="SEQUENTIAL" selected>顺序</option>\r
-    <option value="ALL">全部</option>\r
-    <option value="PERCENTAGE">百分比</option>\r
+  <button class="draw" disabled data-i18n="widget.draw">Draw</button>\r
+  <label><span data-i18n="widget.strategy"></span>:&nbsp;<select class="strategy">\r
+    <option value="SEQUENTIAL" selected data-i18n="widget.strategy.sequential">Sequential</option>\r
+    <option value="ALL" data-i18n="widget.strategy.all">All</option>\r
+    <option value="PERCENTAGE" data-i18n="widget.strategy.percentage">Percentage</option>\r
   </select></label>\r
   <div class="images"></div>\r
-  <!-- <button class="pumpkin-hunt" disabled>南瓜狩猎！</button> -->\r
-  <button class="add-image" disabled>添加图片</button>\r
+  <!-- <button class="pumpkin-hunt" disabled>Pumpkin Hunt!</button> -->\r
+  <button class="add-image" disabled data-i18n="widget.addImage">Add image</button>\r
 </div>\r
+<button class="lang-toggle" data-i18n="widget.langToggle">中/EN</button>\r
 `;
 
 // src/widget.ts
@@ -1764,6 +1958,7 @@ class Widget extends Base2 {
     this.bot = bot;
     this.element.classList.add("wwidget");
     this.element.innerHTML = widget_default;
+    translateElement(this.element);
     document.body.append(this.element);
     this.populateElementsWithSelector(this.element, {
       $wopenButton: ".wopen-button",
@@ -1784,12 +1979,13 @@ class Widget extends Base2 {
     this.$strategy.addEventListener("change", () => {
       this.bot.strategy = this.$strategy.value;
     });
+    this.element.querySelector(".lang-toggle").addEventListener("click", () => toggleLang());
     this.update();
     this.open = true;
   }
   addImage() {
     this.setDisabled("add-image", true);
-    return this.run("添加图片中", async () => {
+    return this.run(t("widget.status.addImage"), async () => {
       await this.bot.updateColors();
       const input = document.createElement("input");
       input.type = "file";
@@ -1834,7 +2030,8 @@ class Widget extends Base2 {
     }
     const doneTasks = maxTasks - totalTasks;
     const percent = doneTasks / maxTasks * 100 | 0;
-    this.$progressText.textContent = `${doneTasks}/${maxTasks} ${percent}% 预计: ${totalTasks / 120 | 0}小时`;
+    const hours = totalTasks / 120 | 0;
+    this.$progressText.textContent = t("widget.progress", doneTasks, maxTasks, percent, hours);
     this.$progressLine.style.transform = `scaleX(${percent}%)`;
     this.$images.innerHTML = "";
     for (let index = 0;index < this.bot.images.length; index++) {
@@ -1923,10 +2120,10 @@ class WPlaceBot {
     const style = document.createElement("style");
     style.textContent = style_default.replace("FAKE_FAVORITE_LOCATIONS", FAVORITE_LOCATIONS.length.toString());
     document.head.append(style);
-    this.widget.run("初始化中", async () => {
-      await this.waitForElement("登录", ".avatar.center-absolute.absolute");
-      await this.waitForElement("pixel count", ".btn.btn-primary.btn-lg.relative.z-30 canvas");
-      const $canvasContainer = await this.waitForElement("canvas", ".maplibregl-canvas-container");
+    this.widget.run(t("widget.status.initializing"), async () => {
+      await this.waitForElement("wait.login", ".avatar.center-absolute.absolute");
+      await this.waitForElement("wait.pixelCount", ".btn.btn-primary.btn-lg.relative.z-30 canvas");
+      const $canvasContainer = await this.waitForElement("wait.canvas", ".maplibregl-canvas-container");
       new MutationObserver((mutations) => {
         for (let index = 0;index < mutations.length; index++)
           if (mutations[index].removedNodes.length !== 0) {
@@ -1963,8 +2160,8 @@ class WPlaceBot {
       if (!event.shiftKey)
         event.stopPropagation();
     };
-    return this.widget.run("绘制中", async () => {
-      await this.widget.run("初始化绘制", () => Promise.all([this.updateColors(), this.readMap()]));
+    return this.widget.run(t("widget.status.drawing"), async () => {
+      await this.widget.run(t("widget.status.initDraw"), () => Promise.all([this.updateColors(), this.readMap()]));
       globalThis.addEventListener("mousemove", prevent, true);
       $canvas.addEventListener("wheel", prevent, true);
       this.updateTasks();
@@ -2074,16 +2271,16 @@ class WPlaceBot {
           imagesToDownload.add(`${tileX}/${tileY}`);
     }
     let done = 0;
-    return this.widget.run(`读取地图 [0/${imagesToDownload.size}]`, () => Promise.all([...imagesToDownload].map(async (x) => {
+    return this.widget.run(t("widget.status.readMap", 0, imagesToDownload.size), () => Promise.all([...imagesToDownload].map(async (x) => {
       this.mapsCache.set(x, await Pixels.fromJSON(this, {
         url: `https://backend.wplace.live/files/s0/tiles/${x}.png`,
         exactColor: true
       }));
-      this.widget.status = `⌛ 读取地图 [${++done}/${imagesToDownload.size}]`;
+      this.widget.status = t("widget.status.readMap", ++done, imagesToDownload.size);
     })));
   }
   waitForUnfocus() {
-    return this.widget.run("取消聚焦窗口", () => new Promise((resolve) => {
+    return this.widget.run(t("widget.status.unfocus"), () => new Promise((resolve) => {
       if (!document.hasFocus())
         resolve();
       window.addEventListener("blur", () => {
@@ -2200,8 +2397,9 @@ class WPlaceBot {
       }
     }
   }
-  waitForElement(name, selector) {
-    return this.widget.run(`等待 ${name}`, () => {
+  waitForElement(nameKey, selector) {
+    const displayName = t(nameKey);
+    return this.widget.run(t("widget.status.waiting", displayName), () => {
       return new Promise((resolve) => {
         const existing = document.querySelector(selector);
         if (existing) {
