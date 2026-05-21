@@ -87,16 +87,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  min-height: 64px;
-  flex-wrap: wrap;
-}
-
-.wwidget .images .image .image-specs {
-  font-size: 10px;
-  white-space: nowrap;
-  margin: 0 4px;
-  color: var(--text);
-  opacity: 0.85;
+  height: 64px;
 }
 
 .wwidget .images .image img {
@@ -329,6 +320,13 @@
 
 .wtopbar button:hover {
   background-color: var(--main-hover);
+}
+
+.wtopbar .specs {
+  margin-right: auto;
+  padding: 0 6px;
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 /* Resize */

@@ -92,6 +92,7 @@ export class BotImage extends Base {
   protected readonly $cropT!: HTMLInputElement
   protected readonly $cropB!: HTMLInputElement
   protected readonly $undo!: HTMLButtonElement
+  protected readonly $specs!: HTMLSpanElement
   protected readonly $wrapper!: HTMLDivElement
 
   public constructor(
@@ -148,6 +149,7 @@ export class BotImage extends Base {
       $cropT: '#cropT',
       $cropB: '#cropB',
       $undo: '.undo',
+      $specs: '.specs',
     })
     this.$resetSizeSpan =
       this.$resetSize.querySelector<HTMLSpanElement>('span')!
@@ -361,6 +363,10 @@ export class BotImage extends Base {
     this.$hide.textContent = this.hidden ? '👁‍🗨' : '👁'
     this.$undo.style.display = this.pixels.canUndo ? '' : 'none'
     this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`
+    const imgW = this.pixels.pixels[0]!.length
+    const imgH = this.pixels.pixels.length
+    const totalPx = imgW * imgH
+    this.$specs.textContent = t('widget.imageSpecs', imgW, imgH, totalPx)
   }
 
   /** Removes image. Don't forget to remove from array inside widget. */

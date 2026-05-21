@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.6.2
+// @version      4.6.3
 // @description  在 https://wplace.live 网站上自动绘制的机器人 (支持 EN/中 切换)
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -375,6 +375,7 @@ function colorToCSS(colorId) {
 
 // src/image.html
 var image_default = `<div class="wtopbar">\r
+  <span class="specs"></span>\r
   <button class="hide" data-i18n-title="image.hide">👁</button>\r
   <button class="export" data-i18n-title="image.export">📤</button>\r
   <button class="lock" data-i18n-title="image.lock">🔓</button>\r
@@ -1000,6 +1001,7 @@ class BotImage extends Base2 {
   $cropT;
   $cropB;
   $undo;
+  $specs;
   $wrapper;
   constructor(bot, position, pixels, strategy = "SPIRAL_FROM_CENTER" /* SPIRAL_FROM_CENTER */, opacity = 50, drawTransparentPixels = false, drawColorsInOrder = false, colors = [], lock = false, hidden = false) {
     super();
@@ -1043,7 +1045,8 @@ class BotImage extends Base2 {
       $cropR: "#cropR",
       $cropT: "#cropT",
       $cropB: "#cropB",
-      $undo: ".undo"
+      $undo: ".undo",
+      $specs: ".specs"
     });
     this.$resetSizeSpan = this.$resetSize.querySelector("span");
     this.$canvas = this.pixels.canvas;
@@ -1223,6 +1226,10 @@ class BotImage extends Base2 {
     this.$hide.textContent = this.hidden ? "\uD83D\uDC41‍\uD83D\uDDE8" : "\uD83D\uDC41";
     this.$undo.style.display = this.pixels.canUndo ? "" : "none";
     this.$coords.textContent = `(${this.position.globalX}, ${this.position.globalY})`;
+    const imgW = this.pixels.pixels[0].length;
+    const imgH = this.pixels.pixels.length;
+    const totalPx = imgW * imgH;
+    this.$specs.textContent = t("widget.imageSpecs", imgW, imgH, totalPx);
   }
   destroy() {
     super.destroy();
@@ -1571,16 +1578,7 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   display: flex;\r
   align-items: center;\r
   width: 100%;\r
-  min-height: 64px;\r
-  flex-wrap: wrap;\r
-}\r
-\r
-.wwidget .images .image .image-specs {\r
-  font-size: 10px;\r
-  white-space: nowrap;\r
-  margin: 0 4px;\r
-  color: var(--text);\r
-  opacity: 0.85;\r
+  height: 64px;\r
 }\r
 \r
 .wwidget .images .image img {\r
@@ -1813,6 +1811,13 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
 \r
 .wtopbar button:hover {\r
   background-color: var(--main-hover);\r
+}\r
+\r
+.wtopbar .specs {\r
+  margin-right: auto;\r
+  padding: 0 6px;\r
+  font-size: 11px;\r
+  white-space: nowrap;\r
 }\r
 \r
 /* Resize */\r
@@ -2104,11 +2109,7 @@ class Widget extends Base2 {
       const $image = document.createElement("div");
       this.$images.append($image);
       $image.className = "image";
-      const imgWidth = image.pixels.pixels[0].length;
-      const imgHeight = image.pixels.pixels.length;
-      const totalPixels = imgWidth * imgHeight;
       $image.innerHTML = `<img src="${image.pixels.image.src}">
-  <span class="image-specs">${t("widget.imageSpecs", imgWidth, imgHeight, totalPixels)}</span>
   <button class="up" title="上移" ${index === 0 ? "disabled" : ""}>▴</button>
   <button class="down" title="下移" ${index === this.bot.images.length - 1 ? "disabled" : ""}>▾</button>`;
       $image.querySelector("img").addEventListener("click", () => {
