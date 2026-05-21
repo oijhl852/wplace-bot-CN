@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.6.3
+// @version      4.6.5
 // @description  在 https://wplace.live 网站上自动绘制的机器人 (支持 EN/中 切换)
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -1018,6 +1018,7 @@ class BotImage extends Base2 {
     this.element.innerHTML = image_default;
     this.element.classList.add("wimage");
     document.body.append(this.element);
+    translateElement(this.element);
     this.populateElementsWithSelector(this.element, {
       $brightness: ".brightness",
       $colors: ".colors",

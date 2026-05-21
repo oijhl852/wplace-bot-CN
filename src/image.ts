@@ -8,7 +8,7 @@ import html from './image.html' with { type: 'text' }
 import { Pixels } from './pixels'
 import { save } from './save'
 import { Position, WorldPosition } from './world-position'
-import { t } from './i18n'
+import { t, translateElement } from './i18n'
 
 export type DrawTask = {
   position: WorldPosition
@@ -120,6 +120,7 @@ export class BotImage extends Base {
     this.element.innerHTML = html as unknown as string
     this.element.classList.add('wimage')
     document.body.append(this.element)
+    translateElement(this.element)
 
     this.populateElementsWithSelector(this.element, {
       $brightness: '.brightness',
