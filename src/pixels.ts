@@ -21,7 +21,14 @@ export class Pixels {
           .then((X) => URL.createObjectURL(X))
       : data.url
     await promisifyEventSource(image, ['load'], ['error'])
-    return new Pixels(bot, image, data.width, data.brightness, data.exactColor)
+    const pixels = new Pixels(bot, image, data.width, data.brightness, data.exactColor)
+    // Restore color substitutions
+    if (data.substitutions)
+      for (const [src, tgt] of data.substitutions) {
+        pixels.substitutions.set(src, tgt)
+        pixels.applySubstitutionRestore(src, tgt)
+      }
+    return pixels
   }
 
   public canvas = document.createElement('canvas')
@@ -41,6 +48,9 @@ export class Pixels {
     width: number
     canvasData: ImageData
   }> = []
+
+  /** Color substitution map: source color → target color */
+  public substitutions: Map<number, number> = new Map()
 
   /** Whether undo is available */
   public get canUndo(): boolean {
@@ -243,22 +253,100 @@ export class Pixels {
     this.context.putImageData(data, 0, 0)
   }
 
+  /** Apply a color substitution: replace all pixels of sourceColor with targetColor */
+  public applySubstitution(sourceColor: number, targetColor: number): void {
+    if (sourceColor === targetColor || sourceColor === 0) return
+    this.saveUndoState()
+
+    // Replace in pixels array
+    for (let y = 0; y < this.pixels.length; y++) {
+      const row = this.pixels[y]!
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] === sourceColor) row[x] = targetColor
+      }
+    }
+
+    // Replace in colors map
+    const sourceStat = this.colors.get(sourceColor)
+    if (sourceStat) {
+      const targetStat = this.colors.get(targetColor)
+      if (targetStat) targetStat.amount += sourceStat.amount
+      else this.colors.set(targetColor, { color: targetColor, amount: sourceStat.amount, realColor: targetColor })
+      this.colors.delete(sourceColor)
+    }
+
+    // Store in substitutions map for save/load
+    this.substitutions.set(sourceColor, targetColor)
+
+    // Redraw canvas
+    const w = this.pixels[0]!.length
+    const h = this.pixels.length
+    const data = this.context.createImageData(w, h)
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        const ci = this.pixels[y]![x]!
+        if (ci === 0) continue
+        const rgb = COLORS_RGB[ci]
+        if (!rgb) continue
+        const [r, g, b] = rgb.split(',').map(Number)
+        const idx = (y * w + x) * 4
+        data.data[idx] = r!
+        data.data[idx + 1] = g!
+        data.data[idx + 2] = b!
+        data.data[idx + 3] = 255
+      }
+    this.context.putImageData(data, 0, 0)
+  }
+
+  /** Internal: apply substitution without undo (for restoring from save) */
+  public applySubstitutionRestore(sourceColor: number, targetColor: number): void {
+    for (let y = 0; y < this.pixels.length; y++) {
+      const row = this.pixels[y]!
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] === sourceColor) row[x] = targetColor
+      }
+    }
+    const sourceStat = this.colors.get(sourceColor)
+    if (sourceStat) {
+      const targetStat = this.colors.get(targetColor)
+      if (targetStat) targetStat.amount += sourceStat.amount
+      else this.colors.set(targetColor, { color: targetColor, amount: sourceStat.amount, realColor: targetColor })
+      this.colors.delete(sourceColor)
+    }
+    const w = this.pixels[0]!.length
+    const h = this.pixels.length
+    const data = this.context.createImageData(w, h)
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        const ci = this.pixels[y]![x]!
+        if (ci === 0) continue
+        const rgb = COLORS_RGB[ci]
+        if (!rgb) continue
+        const [r, g, b] = rgb.split(',').map(Number)
+        const idx = (y * w + x) * 4
+        data.data[idx] = r!
+        data.data[idx + 1] = g!
+        data.data[idx + 2] = b!
+        data.data[idx + 3] = 255
+      }
+    this.context.putImageData(data, 0, 0)
+  }
+
   public toJSON() {
-    const canvas = document.createElement('canvas')
-    canvas.width = this.image.naturalWidth
-    canvas.height = this.image.naturalHeight
-    const context = canvas.getContext('2d')!
-    context.drawImage(this.image, 0, 0)
     return {
-      url: canvas.toDataURL('image/webp', 1),
+      url: this.canvas.toDataURL('image/webp', 1),
       width: this.width,
       brightness: this.brightness,
       exactColor: this.exactColor,
+      substitutions: this.substitutions.size > 0
+        ? Array.from(this.substitutions.entries())
+        : undefined,
     } as {
       url: string
       width?: number
       brightness?: number
       exactColor?: boolean
+      substitutions?: [number, number][]
     }
   }
 }

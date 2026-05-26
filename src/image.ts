@@ -2,7 +2,7 @@ import { removeFromArray } from '@softsky/utils'
 
 import { Base } from './base'
 import { WPlaceBot } from './bot'
-import { colorToCSS } from './colors'
+import { colorToCSS, COLOR_GROUPS, COLOR_NAMES } from './colors'
 // @ts-ignore
 import html from './image.html' with { type: 'text' }
 import { Pixels } from './pixels'
@@ -86,13 +86,12 @@ export class BotImage extends Base {
   protected readonly $cropRight!: HTMLButtonElement
   protected readonly $cropUp!: HTMLButtonElement
   protected readonly $cropDown!: HTMLButtonElement
-  protected readonly $cropApply!: HTMLButtonElement
-  protected readonly $cropL!: HTMLInputElement
-  protected readonly $cropR!: HTMLInputElement
-  protected readonly $cropT!: HTMLInputElement
-  protected readonly $cropB!: HTMLInputElement
   protected readonly $undo!: HTMLButtonElement
   protected readonly $specs!: HTMLSpanElement
+  protected readonly $subSource!: HTMLSelectElement
+  protected readonly $subTarget!: HTMLSelectElement
+  protected readonly $subApply!: HTMLButtonElement
+  protected readonly $subReset!: HTMLButtonElement
   protected readonly $wrapper!: HTMLDivElement
 
   public constructor(
@@ -144,13 +143,12 @@ export class BotImage extends Base {
       $cropRight: '.crop-right',
       $cropUp: '.crop-up',
       $cropDown: '.crop-down',
-      $cropApply: '.crop-apply',
-      $cropL: '#cropL',
-      $cropR: '#cropR',
-      $cropT: '#cropT',
-      $cropB: '#cropB',
       $undo: '.undo',
       $specs: '.specs',
+      $subSource: '.sub-source',
+      $subTarget: '.sub-target',
+      $subApply: '.sub-apply',
+      $subReset: '.sub-reset',
     })
     this.$resetSizeSpan =
       this.$resetSize.querySelector<HTMLSpanElement>('span')!
@@ -177,17 +175,19 @@ export class BotImage extends Base {
     this.$opacity.style.setProperty('--val', this.opacity + '%')
 
     // Brightness
-    let timeout: ReturnType<typeof setTimeout> | undefined
+    let brightnessTimeout
 
-    this.registerEvent(this.$brightness, 'change', () => {
-      clearTimeout(timeout)
-      timeout = setTimeout(() => {
-        this.pixels.brightness = this.$brightness.valueAsNumber
+    this.registerEvent(this.$brightness, 'input', () => {
+      this.pixels.brightness = this.$brightness.valueAsNumber
+      this.$brightness.style.setProperty('--val', ((this.pixels.brightness + 0.5) * 100) + '%')
+      clearTimeout(brightnessTimeout)
+      brightnessTimeout = setTimeout(() => {
         this.pixels.update()
         this.updateColors()
         this.update()
+        this.bot.widget.update()
         save(this.bot)
-      }, 1000)
+      }, 200)
     })
 
     // Reset
@@ -252,23 +252,28 @@ export class BotImage extends Base {
     this.registerEvent(this.$cropRight, 'click', () => doCrop(0, 1, 0, 0))
     this.registerEvent(this.$cropUp, 'click', () => doCrop(0, 0, 1, 0))
     this.registerEvent(this.$cropDown, 'click', () => doCrop(0, 0, 0, 1))
-    this.registerEvent(this.$cropApply, 'click', () => {
-      if (this.lock) return
-      const left = parseInt(this.$cropL.value) || 0
-      const right = parseInt(this.$cropR.value) || 0
-      const top = parseInt(this.$cropT.value) || 0
-      const bottom = parseInt(this.$cropB.value) || 0
-      if (left > 0) this.position.globalX += left
-      if (top > 0) this.position.globalY += top
-      this.pixels.crop(left, right, top, bottom)
+
+    // Color substitution
+    this.populateColorSelectors()
+    this.registerEvent(this.$subApply, 'click', () => {
+      const src = parseInt(this.$subSource.value)
+      const tgt = parseInt(this.$subTarget.value)
+      if (!src || !tgt || src === tgt) return
+      this.pixels.applySubstitution(src, tgt)
       this.updateColors()
       this.update()
       this.bot.widget.update()
+      this.substitutionChanged()
       save(this.bot)
-      this.$cropL.value = '0'
-      this.$cropR.value = '0'
-      this.$cropT.value = '0'
-      this.$cropB.value = '0'
+    })
+    this.registerEvent(this.$subReset, 'click', () => {
+      this.pixels.substitutions.clear()
+      this.pixels.update()
+      this.updateColors()
+      this.update()
+      this.bot.widget.update()
+      this.substitutionChanged()
+      save(this.bot)
     })
 
     // Export
@@ -336,6 +341,35 @@ export class BotImage extends Base {
     this.bot.widget.update()
   }
 
+  /** Populate the source/target color selectors with wplace.live palette */
+  protected populateColorSelectors(): void {
+    const opt = (id: number) => {
+      const o = document.createElement('option')
+      o.value = String(id)
+      o.textContent = `${COLOR_NAMES[id]} [#${id}]`
+      o.style.background = colorToCSS(id)
+      o.style.color = id <= 3 ? '#fff' : '#222'
+      return o
+    }
+    for (const group of COLOR_GROUPS) {
+      const ogSource = document.createElement('optgroup')
+      const ogTarget = document.createElement('optgroup')
+      ogSource.label = group.name
+      ogTarget.label = group.name
+      for (const id of group.colorIds) {
+        ogSource.append(opt(id).cloneNode(true))
+        ogTarget.append(opt(id).cloneNode(true))
+      }
+      this.$subSource.append(ogSource)
+      this.$subTarget.append(ogTarget)
+    }
+  }
+
+  /** Update reset button state based on substitution count */
+  protected substitutionChanged(): void {
+    this.$subReset.disabled = this.pixels.substitutions.size === 0
+  }
+
   /** Update image (NOT PIXELS) */
   public update() {
     const { x, y } = this.position.toScreenPosition()
@@ -348,6 +382,7 @@ export class BotImage extends Base {
 
     this.$resetSizeSpan.textContent = this.pixels.width.toString()
     this.$brightness.valueAsNumber = this.pixels.brightness
+    this.$brightness.style.setProperty('--val', ((this.pixels.brightness + 0.5) * 100) + '%')
     this.$strategy.value = this.strategy
     this.$opacity.valueAsNumber = this.opacity
     this.$drawTransparent.checked = this.drawTransparentPixels

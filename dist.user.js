@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         wplace-bot-CN
 // @namespace    https://github.com/SoundOfTheSky
-// @version      4.6.5
+// @version      4.7.0
 // @description  在 https://wplace.live 网站上自动绘制的机器人 (支持 EN/中 切换)
 // @author       SoundOfTheSky
 // @license      MPL-2.0
@@ -372,6 +372,90 @@ function colorToCSS(colorId) {
   const color = COLORS[colorId];
   return `oklab(${color[0] * 100}% ${color[1]} ${color[2]})`;
 }
+var COLOR_NAMES = [
+  "",
+  "Black",
+  "Dark Gray",
+  "Gray",
+  "Light Gray",
+  "White",
+  "Deep Red",
+  "Red",
+  "Orange",
+  "Gold",
+  "Yellow",
+  "Light Yellow",
+  "Dark Green",
+  "Green",
+  "Light Green",
+  "Dark Teal",
+  "Teal",
+  "Light Teal",
+  "Dark Blue",
+  "Blue",
+  "Cyan",
+  "Indigo",
+  "Light Indigo",
+  "Dark Purple",
+  "Purple",
+  "Light Purple",
+  "Dark Pink",
+  "Pink",
+  "Light Pink",
+  "Dark Brown",
+  "Brown",
+  "Beige",
+  "Medium Gray",
+  "Dark Red",
+  "Light Red",
+  "Dark Orange",
+  "Light Tan",
+  "Dark Goldenrod",
+  "Goldenrod",
+  "Light Goldenrod",
+  "Dark Olive",
+  "Olive",
+  "Light Olive",
+  "Dark Cyan",
+  "Light Cyan",
+  "Light Blue",
+  "Dark Indigo",
+  "Dark Slate Blue",
+  "Slate Blue",
+  "Light Slate Blue",
+  "Light Brown",
+  "Dark Beige",
+  "Light Beige",
+  "Dark Peach",
+  "Peach",
+  "Light Peach",
+  "Dark Tan",
+  "Tan",
+  "Dark Slate",
+  "Slate",
+  "Light Slate",
+  "Dark Stone",
+  "Stone",
+  "Light Stone"
+];
+var COLOR_GROUPS = [
+  { name: "Grays", colorIds: [1, 2, 3, 4, 5, 32] },
+  { name: "Reds", colorIds: [6, 7, 33, 34] },
+  { name: "Oranges", colorIds: [8, 35] },
+  { name: "Yellows/Golds", colorIds: [9, 10, 11, 36, 37, 38] },
+  { name: "Greens", colorIds: [12, 13, 14, 39, 40, 41] },
+  { name: "Teals/Cyans", colorIds: [15, 16, 17, 18, 42, 43] },
+  { name: "Blues", colorIds: [19, 20, 44] },
+  { name: "Indigos", colorIds: [21, 22, 45] },
+  { name: "Slate Blues", colorIds: [46, 47, 48] },
+  { name: "Purples", colorIds: [23, 24, 25] },
+  { name: "Pinks", colorIds: [26, 27, 28] },
+  { name: "Browns/Tans", colorIds: [29, 30, 52, 55, 56, 57] },
+  { name: "Beiges", colorIds: [31, 53, 54] },
+  { name: "Peaches", colorIds: [49, 50, 51] },
+  { name: "Stones", colorIds: [58, 59, 60] },
+  { name: "Slates", colorIds: [61, 62, 63] }
+];
 
 // src/image.html
 var image_default = `<div class="wtopbar">\r
@@ -387,7 +471,7 @@ var image_default = `<div class="wtopbar">\r
     <div class="wprogress"><div></div><span></span></div>\r
     <div class="colors"></div>\r
     <label><span data-i18n="image.opacity"></span>:&nbsp;<input class="opacity" type="range" min="0" max="100"/></label>\r
-    <label><span data-i18n="image.brightness"></span>:&nbsp;<input class="brightness" type="number" step="0.1"/></label>\r
+    <label><span data-i18n="image.brightness"></span>:&nbsp;<input class="brightness" type="range" min="-0.5" max="0.5" step="0.01"/></label>\r
     <label>\r
       <span data-i18n="image.strategy"></span>:&nbsp;<select class="strategy">\r
         <option value="RANDOM" selected data-i18n="image.strategy.random">Random</option>\r
@@ -403,18 +487,21 @@ var image_default = `<div class="wtopbar">\r
     <label class="coord-label"><span class="coord-icon">📍</span> <span data-i18n="image.coord"></span>: <span class="coords"></span></label>\r
     <div class="crop-section">\r
       <div class="crop-line">\r
-        <button class="crop-left" data-i18n="image.crop.left">←</button>\r
-        <button class="crop-right" data-i18n="image.crop.right">→</button>\r
-        <button class="crop-up" data-i18n="image.crop.top">↑</button>\r
-        <button class="crop-down" data-i18n="image.crop.bottom">↓</button>\r
+        <button class="crop-left" data-i18n-title="image.crop.left">←</button>\r
+        <button class="crop-down" data-i18n-title="image.crop.bottom">↓</button>\r
+        <button class="crop-up" data-i18n-title="image.crop.top">↑</button>\r
+        <button class="crop-right" data-i18n-title="image.crop.right">→</button>\r
         <span class="crop-hint" data-i18n="image.crop">Crop</span>\r
       </div>\r
-      <div class="crop-line">\r
-        <input class="crop-input" id="cropL" type="number" min="0" value="0" data-i18n-placeholder="image.crop.left"/>\r
-        <input class="crop-input" id="cropR" type="number" min="0" value="0" data-i18n-placeholder="image.crop.right"/>\r
-        <input class="crop-input" id="cropT" type="number" min="0" value="0" data-i18n-placeholder="image.crop.top"/>\r
-        <input class="crop-input" id="cropB" type="number" min="0" value="0" data-i18n-placeholder="image.crop.bottom"/>\r
-        <button class="crop-apply" data-i18n="image.crop.apply">Apply</button>\r
+    </div>\r
+    <div class="sub-section">\r
+      <span class="crop-hint" data-i18n="image.colorSub">Color Sub</span>\r
+      <div class="sub-controls">\r
+        <select class="sub-source"></select>\r
+        <span class="sub-arrow" data-i18n="image.colorSub.to">→</span>\r
+        <select class="sub-target"></select>\r
+        <button class="sub-apply" data-i18n="image.colorSub.apply">Apply</button>\r
+        <button class="sub-reset" data-i18n="image.colorSub.reset" disabled>Reset</button>\r
       </div>\r
     </div>\r
     <label>\r
@@ -442,13 +529,20 @@ class Pixels {
     const image = new Image;
     image.src = data.url.startsWith("http") ? await fetch(data.url, { cache: "no-store" }).then((x) => x.blob()).then((X) => URL.createObjectURL(X)) : data.url;
     await promisifyEventSource(image, ["load"], ["error"]);
-    return new Pixels(bot, image, data.width, data.brightness, data.exactColor);
+    const pixels = new Pixels(bot, image, data.width, data.brightness, data.exactColor);
+    if (data.substitutions)
+      for (const [src, tgt] of data.substitutions) {
+        pixels.substitutions.set(src, tgt);
+        pixels.applySubstitutionRestore(src, tgt);
+      }
+    return pixels;
   }
   canvas = document.createElement("canvas");
   context = this.canvas.getContext("2d");
   pixels;
   colors = new Map;
   undoStack = [];
+  substitutions = new Map;
   get canUndo() {
     return this.undoStack.length > 0;
   }
@@ -603,17 +697,91 @@ class Pixels {
       }
     this.context.putImageData(data, 0, 0);
   }
+  applySubstitution(sourceColor, targetColor) {
+    if (sourceColor === targetColor || sourceColor === 0)
+      return;
+    this.saveUndoState();
+    for (let y = 0;y < this.pixels.length; y++) {
+      const row = this.pixels[y];
+      for (let x = 0;x < row.length; x++) {
+        if (row[x] === sourceColor)
+          row[x] = targetColor;
+      }
+    }
+    const sourceStat = this.colors.get(sourceColor);
+    if (sourceStat) {
+      const targetStat = this.colors.get(targetColor);
+      if (targetStat)
+        targetStat.amount += sourceStat.amount;
+      else
+        this.colors.set(targetColor, { color: targetColor, amount: sourceStat.amount, realColor: targetColor });
+      this.colors.delete(sourceColor);
+    }
+    this.substitutions.set(sourceColor, targetColor);
+    const w = this.pixels[0].length;
+    const h = this.pixels.length;
+    const data = this.context.createImageData(w, h);
+    for (let y = 0;y < h; y++)
+      for (let x = 0;x < w; x++) {
+        const ci = this.pixels[y][x];
+        if (ci === 0)
+          continue;
+        const rgb = COLORS_RGB[ci];
+        if (!rgb)
+          continue;
+        const [r, g, b] = rgb.split(",").map(Number);
+        const idx = (y * w + x) * 4;
+        data.data[idx] = r;
+        data.data[idx + 1] = g;
+        data.data[idx + 2] = b;
+        data.data[idx + 3] = 255;
+      }
+    this.context.putImageData(data, 0, 0);
+  }
+  applySubstitutionRestore(sourceColor, targetColor) {
+    for (let y = 0;y < this.pixels.length; y++) {
+      const row = this.pixels[y];
+      for (let x = 0;x < row.length; x++) {
+        if (row[x] === sourceColor)
+          row[x] = targetColor;
+      }
+    }
+    const sourceStat = this.colors.get(sourceColor);
+    if (sourceStat) {
+      const targetStat = this.colors.get(targetColor);
+      if (targetStat)
+        targetStat.amount += sourceStat.amount;
+      else
+        this.colors.set(targetColor, { color: targetColor, amount: sourceStat.amount, realColor: targetColor });
+      this.colors.delete(sourceColor);
+    }
+    const w = this.pixels[0].length;
+    const h = this.pixels.length;
+    const data = this.context.createImageData(w, h);
+    for (let y = 0;y < h; y++)
+      for (let x = 0;x < w; x++) {
+        const ci = this.pixels[y][x];
+        if (ci === 0)
+          continue;
+        const rgb = COLORS_RGB[ci];
+        if (!rgb)
+          continue;
+        const [r, g, b] = rgb.split(",").map(Number);
+        const idx = (y * w + x) * 4;
+        data.data[idx] = r;
+        data.data[idx + 1] = g;
+        data.data[idx + 2] = b;
+        data.data[idx + 3] = 255;
+      }
+    this.context.putImageData(data, 0, 0);
+  }
   toJSON() {
-    const canvas = document.createElement("canvas");
-    canvas.width = this.image.naturalWidth;
-    canvas.height = this.image.naturalHeight;
-    const context = canvas.getContext("2d");
-    context.drawImage(this.image, 0, 0);
     return {
-      url: canvas.toDataURL("image/webp", 1),
+      url: this.canvas.toDataURL("image/webp", 1),
       width: this.width,
       brightness: this.brightness,
-      exactColor: this.exactColor
+      exactColor: this.exactColor,
+      substitutions: this.substitutions.size > 0 ? Array.from(this.substitutions.entries()) : undefined
     };
   }
 }
@@ -811,6 +979,10 @@ var locales = {
     "image.pixels": "pixels",
     "image.coord": "Coord",
     "image.crop": "Crop",
+    "image.colorSub": "Color Sub",
+    "image.colorSub.to": "→",
+    "image.colorSub.apply": "Apply",
+    "image.colorSub.reset": "Reset",
     "image.crop.apply": "Apply",
     "image.crop.left": "L",
     "image.crop.right": "R",
@@ -862,6 +1034,10 @@ var locales = {
     "image.pixels": "像素",
     "image.coord": "坐标",
     "image.crop": "裁切",
+    "image.colorSub": "换色",
+    "image.colorSub.to": "→",
+    "image.colorSub.apply": "执行",
+    "image.colorSub.reset": "重置",
     "image.crop.apply": "执行",
     "image.crop.left": "左",
     "image.crop.right": "右",
@@ -995,13 +1171,12 @@ class BotImage extends Base2 {
   $cropRight;
   $cropUp;
   $cropDown;
-  $cropApply;
-  $cropL;
-  $cropR;
-  $cropT;
-  $cropB;
   $undo;
   $specs;
+  $subSource;
+  $subTarget;
+  $subApply;
+  $subReset;
   $wrapper;
   constructor(bot, position, pixels, strategy = "SPIRAL_FROM_CENTER" /* SPIRAL_FROM_CENTER */, opacity = 50, drawTransparentPixels = false, drawColorsInOrder = false, colors = [], lock = false, hidden = false) {
     super();
@@ -1041,13 +1216,12 @@ class BotImage extends Base2 {
       $cropRight: ".crop-right",
       $cropUp: ".crop-up",
       $cropDown: ".crop-down",
-      $cropApply: ".crop-apply",
-      $cropL: "#cropL",
-      $cropR: "#cropR",
-      $cropT: "#cropT",
-      $cropB: "#cropB",
       $undo: ".undo",
-      $specs: ".specs"
+      $specs: ".specs",
+      $subSource: ".sub-source",
+      $subTarget: ".sub-target",
+      $subApply: ".sub-apply",
+      $subReset: ".sub-reset"
     });
     this.$resetSizeSpan = this.$resetSize.querySelector("span");
     this.$canvas = this.pixels.canvas;
@@ -1067,16 +1241,18 @@ class BotImage extends Base2 {
       }, 200);
     });
     this.$opacity.style.setProperty("--val", this.opacity + "%");
-    let timeout;
-    this.registerEvent(this.$brightness, "change", () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        this.pixels.brightness = this.$brightness.valueAsNumber;
+    let brightnessTimeout;
+    this.registerEvent(this.$brightness, "input", () => {
+      this.pixels.brightness = this.$brightness.valueAsNumber;
+      this.$brightness.style.setProperty("--val", (this.pixels.brightness + 0.5) * 100 + "%");
+      clearTimeout(brightnessTimeout);
+      brightnessTimeout = setTimeout(() => {
         this.pixels.update();
         this.updateColors();
         this.update();
+        this.bot.widget.update();
         save(this.bot);
-      }, 1000);
+      }, 200);
     });
     this.registerEvent(this.$resetSize, "click", () => {
       this.pixels.width = this.pixels.image.naturalWidth;
@@ -1128,26 +1304,27 @@ class BotImage extends Base2 {
     this.registerEvent(this.$cropRight, "click", () => doCrop(0, 1, 0, 0));
     this.registerEvent(this.$cropUp, "click", () => doCrop(0, 0, 1, 0));
     this.registerEvent(this.$cropDown, "click", () => doCrop(0, 0, 0, 1));
-    this.registerEvent(this.$cropApply, "click", () => {
-      if (this.lock)
+    this.populateColorSelectors();
+    this.registerEvent(this.$subApply, "click", () => {
+      const src = parseInt(this.$subSource.value);
+      const tgt = parseInt(this.$subTarget.value);
+      if (!src || !tgt || src === tgt)
         return;
-      const left = parseInt(this.$cropL.value) || 0;
-      const right = parseInt(this.$cropR.value) || 0;
-      const top = parseInt(this.$cropT.value) || 0;
-      const bottom = parseInt(this.$cropB.value) || 0;
-      if (left > 0)
-        this.position.globalX += left;
-      if (top > 0)
-        this.position.globalY += top;
-      this.pixels.crop(left, right, top, bottom);
+      this.pixels.applySubstitution(src, tgt);
       this.updateColors();
       this.update();
       this.bot.widget.update();
+      this.substitutionChanged();
       save(this.bot);
-      this.$cropL.value = "0";
-      this.$cropR.value = "0";
-      this.$cropT.value = "0";
-      this.$cropB.value = "0";
+    });
+    this.registerEvent(this.$subReset, "click", () => {
+      this.pixels.substitutions.clear();
+      this.pixels.update();
+      this.updateColors();
+      this.update();
+      this.bot.widget.update();
+      this.substitutionChanged();
+      save(this.bot);
     });
     this.registerEvent(this.$export, "click", this.export.bind(this));
     this.registerEvent(this.$topbar, "mousedown", this.moveStart.bind(this));
@@ -1201,6 +1378,31 @@ class BotImage extends Base2 {
     this.update();
     this.bot.widget.update();
   }
+  populateColorSelectors() {
+    const opt = (id) => {
+      const o = document.createElement("option");
+      o.value = String(id);
+      o.textContent = `${COLOR_NAMES[id]} [#${id}]`;
+      o.style.background = colorToCSS(id);
+      o.style.color = id <= 3 ? "#fff" : "#222";
+      return o;
+    };
+    for (const group of COLOR_GROUPS) {
+      const ogSource = document.createElement("optgroup");
+      const ogTarget = document.createElement("optgroup");
+      ogSource.label = group.name;
+      ogTarget.label = group.name;
+      for (const id of group.colorIds) {
+        ogSource.append(opt(id).cloneNode(true));
+        ogTarget.append(opt(id).cloneNode(true));
+      }
+      this.$subSource.append(ogSource);
+      this.$subTarget.append(ogTarget);
+    }
+  }
+  substitutionChanged() {
+    this.$subReset.disabled = this.pixels.substitutions.size === 0;
+  }
   update() {
     const { x, y } = this.position.toScreenPosition();
     this.element.style.transform = `translate(${x}px, ${y}px)`;
@@ -1211,6 +1413,7 @@ class BotImage extends Base2 {
     this.element.style.zIndex = String(9 + this.bot.images.length - this.bot.images.indexOf(this));
     this.$resetSizeSpan.textContent = this.pixels.width.toString();
     this.$brightness.valueAsNumber = this.pixels.brightness;
+    this.$brightness.style.setProperty("--val", (this.pixels.brightness + 0.5) * 100 + "%");
     this.$strategy.value = this.strategy;
     this.$opacity.valueAsNumber = this.opacity;
     this.$drawTransparent.checked = this.drawTransparentPixels;
@@ -1918,6 +2121,41 @@ var style_default = `/* stylelint-disable declaration-no-important */\r
   height: 28px;\r
   padding: 0 12px;\r
   font-size: 12px;\r
+}\r
+\r
+/* Color Substitution */\r
+.sub-section {\r
+  flex-direction: column;\r
+  gap: 4px;\r
+}\r
+.sub-controls {\r
+  display: flex;\r
+  justify-content: center;\r
+  align-items: center;\r
+  gap: 4px;\r
+  width: 100%;\r
+}\r
+.sub-controls select {\r
+  min-width: 0;\r
+  max-width: 100px;\r
+  height: 28px;\r
+  padding: 0 4px;\r
+  border: var(--text) 2px solid;\r
+  font-size: 11px;\r
+  cursor: pointer;\r
+}\r
+.sub-controls .sub-arrow {\r
+  font-size: 14px;\r
+  flex-shrink: 0;\r
+}\r
+.sub-controls button {\r
+  height: 28px;\r
+  padding: 0 8px;\r
+  font-size: 11px;\r
+}\r
+.sub-controls button:disabled {\r
+  background-color: var(--background-disabled);\r
+  cursor: no-drop;\r
 }\r
 \r
 /* Utility */\r

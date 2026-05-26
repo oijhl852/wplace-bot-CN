@@ -428,6 +428,41 @@
   font-size: 12px;
 }
 
+/* Color Substitution */
+.sub-section {
+  flex-direction: column;
+  gap: 4px;
+}
+.sub-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+.sub-controls select {
+  min-width: 0;
+  max-width: 100px;
+  height: 28px;
+  padding: 0 4px;
+  border: var(--text) 2px solid;
+  font-size: 11px;
+  cursor: pointer;
+}
+.sub-controls .sub-arrow {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.sub-controls button {
+  height: 28px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+.sub-controls button:disabled {
+  background-color: var(--background-disabled);
+  cursor: no-drop;
+}
+
 /* Utility */
 .wp {
   padding: 0 8px;
